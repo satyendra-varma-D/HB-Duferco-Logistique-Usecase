@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Truck, User, Clock, Calendar, Package, Save } from 'lucide-react';
+import { Truck, User, Clock, Calendar, Package, Save, AlertCircle } from 'lucide-react';
 import { Order } from '../../types/order';
 
 interface OrderScheduleFormProps {
@@ -22,8 +22,19 @@ export function OrderScheduleForm({ order, onSubmit, onCancel }: OrderScheduleFo
     pickupQuantity: order.quantity.replace(/[^0-9.]/g, ''),
   });
 
+  const [error, setError] = useState<string | null>(null);
+  const maxQuantity = parseFloat(order.quantity.replace(/[^0-9.]/g, ''));
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const enteredQuantity = parseFloat(formData.pickupQuantity);
+
+    if (enteredQuantity > maxQuantity) {
+      setError(`Quantity cannot exceed the total order volume (${order.quantity})`);
+      return;
+    }
+
+    setError(null);
     onSubmit({
       truckNumber: formData.truckNumber,
       driverName: formData.driverName,
@@ -118,16 +129,32 @@ export function OrderScheduleForm({ order, onSubmit, onCancel }: OrderScheduleFo
               type="number"
               required
               value={formData.pickupQuantity}
-              onChange={(e) => setFormData({ ...formData, pickupQuantity: e.target.value })}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold shadow-sm"
+              onChange={(e) => {
+                setFormData({ ...formData, pickupQuantity: e.target.value });
+                if (error) setError(null);
+              }}
+              className={`w-full px-4 py-3 bg-slate-50 border rounded-2xl outline-none focus:bg-white focus:ring-4 transition-all text-sm font-bold shadow-sm ${
+                error 
+                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5' 
+                  : 'border-slate-100 focus:border-primary/20 focus:ring-primary/5'
+              }`}
             />
+            {error && (
+              <div className="flex items-center gap-1.5 mt-2 px-1 text-[10px] font-black text-red-500 uppercase tracking-widest animate-in slide-in-from-top-1 duration-200">
+                <AlertCircle className="w-3 h-3" />
+                {error}
+              </div>
+            )}
           </div>
         </div>
 
         <div className="flex items-center gap-3 pt-6 sticky bottom-0 bg-white border-t border-slate-50">
           <button
             type="submit"
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-primary text-white text-sm font-black rounded-2xl shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all uppercase tracking-wider"
+            disabled={!!error}
+            className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 text-white text-sm font-black rounded-2xl shadow-lg transition-all uppercase tracking-wider ${
+              error ? 'bg-slate-300 shadow-none cursor-not-allowed' : 'bg-primary shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5'
+            }`}
           >
             <Save className="w-5 h-5" />
             Submit Schedule

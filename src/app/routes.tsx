@@ -6,6 +6,7 @@ import { OrderDetail } from "./components/orders/OrderDetail";
 import { OrderForm } from "./components/orders/OrderForm";
 import { TransporterView } from "./components/transporter/TransporterView";
 import { GateControl } from "./components/gate/GateControl";
+import { LoadingControl } from "./components/loading/LoadingControl";
 import { LoadingList } from "./components/loading/LoadingList";
 import { LoadingDetail } from "./components/loading/LoadingDetail";
 import { LoadingForm } from "./components/loading/LoadingForm";
@@ -13,6 +14,9 @@ import { DocumentsList } from "./components/documents/DocumentsList";
 import { DocumentDetail } from "./components/documents/DocumentDetail";
 import { Tracking } from "./components/tracking/Tracking";
 import { Reports } from "./components/Reports";
+import { TransportersList } from "./components/transporters/TransportersList";
+import { HelpCenter } from "./components/HelpCenter";
+import { Settings } from "./components/Settings";
 import { LoginPage } from "./components/auth/LoginPage";
 import { AccessPass } from "./components/terminal/AccessPass";
 import { useAuth } from "./contexts/AuthContext";
@@ -61,15 +65,17 @@ export const router = createBrowserRouter([
       { path: "orders/:id", Component: OrderDetail },
       { path: "orders/new", Component: OrderForm },
       { path: "orders/:id/edit", Component: OrderForm },
-      { path: "transporter", Component: TransporterView },
+      { path: "transporters", Component: TransportersList },
       { path: "gate", Component: GateControl },
-      { path: "loading", Component: LoadingList },
+      { path: "loading", Component: LoadingControl },
       { path: "loading/:id", Component: LoadingDetail },
       { path: "loading/:id/execute", Component: LoadingForm },
       { path: "documents", Component: DocumentsList },
       { path: "documents/:id", Component: DocumentDetail },
       { path: "tracking", Component: Tracking },
       { path: "reports", Component: Reports },
+      { path: "help", Component: HelpCenter },
+      { path: "settings", Component: Settings },
     ],
   },
 ]);

@@ -6,9 +6,11 @@ import {
   ExternalLink, FileText, CheckCircle2, QrCode, X
 } from 'lucide-react';
 
+import { OrderDocumentsTab } from './OrderDocumentsTab';
+
 export function OrderDetail() {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState<'details' | 'schedule'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'schedule' | 'documents'>('details');
   const [isVerified, setIsVerified] = useState(false);
   const [showPassLink, setShowPassLink] = useState(false);
 
@@ -85,6 +87,14 @@ export function OrderDetail() {
           }`}
         >
           Pickup Schedule
+        </button>
+        <button 
+          onClick={() => setActiveTab('documents')}
+          className={`px-6 py-2.5 text-xs font-black rounded-xl transition-all uppercase tracking-widest ${
+            activeTab === 'documents' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          Documents
         </button>
       </div>
 
@@ -166,7 +176,7 @@ export function OrderDetail() {
               {/* Transporter Info */}
               <div className="bg-[#0047AB] p-8 rounded-[40px] text-white relative overflow-hidden shadow-xl shadow-blue-900/20 group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl transition-all duration-500" />
-                <h3 className="text-sm font-black uppercase tracking-widest mb-6 opacity-70">Assigned Partner</h3>
+                <h3 className="text-sm font-black uppercase tracking-widest mb-6 opacity-70">Assigned Transporter</h3>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20">
                      <User className="w-7 h-7" />
@@ -177,7 +187,7 @@ export function OrderDetail() {
                   </div>
                 </div>
                 <button className="w-full py-3.5 bg-white text-[#0047AB] text-[10px] font-black rounded-2xl uppercase tracking-widest hover:bg-slate-50 transition-all">
-                  Contact Partner
+                  Contact Transporter
                 </button>
               </div>
 
@@ -199,7 +209,7 @@ export function OrderDetail() {
                           <CheckCircle2 className="w-4 h-4" />
                        </div>
                        <div>
-                          <p className="text-xs font-black text-slate-900">Partner Assigned</p>
+                          <p className="text-xs font-black text-slate-900">Transporter Assigned</p>
                           <p className="text-[10px] font-bold text-slate-400 uppercase">23 Apr, 09:15</p>
                        </div>
                     </div>
@@ -216,117 +226,127 @@ export function OrderDetail() {
               </div>
             </div>
           </>
-        ) : (
+        ) : activeTab === 'schedule' ? (
           /* Schedule Tab Content */
           <div className="lg:col-span-3">
-            <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-10 opacity-[0.03]">
-                  <Calendar className="w-64 h-64" />
-               </div>
-               
-               <div className="max-w-4xl">
-                  <div className="flex items-center gap-4 mb-10">
-                     <div className="w-16 h-16 rounded-[24px] bg-indigo-50 flex items-center justify-center text-indigo-500 border border-indigo-100 shadow-inner">
-                        <Calendar className="w-8 h-8" />
-                     </div>
-                     <div>
-                        <h3 className="text-2xl font-black text-slate-900 tracking-tight">Pickup Schedule Info</h3>
-                        <p className="text-sm font-bold text-slate-400">Details provided by {order.assignedTransporterName}</p>
-                     </div>
-                  </div>
+             <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-[0.03]">
+                   <Calendar className="w-64 h-64" />
+                </div>
+                
+                <div className="max-w-4xl">
+                   <div className="flex items-center gap-4 mb-10">
+                      <div className="w-16 h-16 rounded-[24px] bg-indigo-50 flex items-center justify-center text-indigo-500 border border-indigo-100 shadow-inner">
+                         <Calendar className="w-8 h-8" />
+                      </div>
+                      <div>
+                         <h3 className="text-2xl font-black text-slate-900 tracking-tight">Pickup Schedule Info</h3>
+                         <p className="text-sm font-bold text-slate-400">Details provided by {order.assignedTransporterName}</p>
+                      </div>
+                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                     <div className="space-y-10">
-                        <div className="flex items-start gap-5">
-                           <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
-                              <Truck className="w-6 h-6" />
-                           </div>
-                           <div>
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Truck Number</p>
-                              <p className="text-xl font-black text-slate-900">{order.truckNumber}</p>
-                              <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black rounded-lg uppercase tracking-wider">
-                                 <ShieldCheck className="w-3.5 h-3.5" />
-                                 Verified Vehicle
-                              </div>
-                           </div>
-                        </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                      <div className="space-y-10">
+                         <div className="flex items-start gap-5">
+                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
+                               <Truck className="w-6 h-6" />
+                            </div>
+                            <div>
+                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Truck Number</p>
+                               <p className="text-xl font-black text-slate-900">{order.truckNumber}</p>
+                               <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black rounded-lg uppercase tracking-wider">
+                                  <ShieldCheck className="w-3.5 h-3.5" />
+                                  Verified Vehicle
+                               </div>
+                            </div>
+                         </div>
 
-                        <div className="flex items-start gap-5">
-                           <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
-                              <User className="w-6 h-6" />
-                           </div>
-                           <div>
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Driver</p>
-                              <p className="text-xl font-black text-slate-900">{order.driverName}</p>
-                              <button className="mt-2 text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1 hover:underline">
-                                 <ExternalLink className="w-3 h-3" />
-                                 View License Documents
-                              </button>
-                           </div>
-                        </div>
-                     </div>
+                         <div className="flex items-start gap-5">
+                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
+                               <User className="w-6 h-6" />
+                            </div>
+                            <div>
+                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Driver</p>
+                               <p className="text-xl font-black text-slate-900">{order.driverName}</p>
+                               <button className="mt-2 text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1 hover:underline">
+                                  <ExternalLink className="w-3 h-3" />
+                                  View License Documents
+                               </button>
+                            </div>
+                         </div>
+                      </div>
 
-                     <div className="space-y-10">
-                        <div className="flex items-start gap-5">
-                           <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
-                              <Clock className="w-6 h-6" />
-                           </div>
-                           <div>
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Confirmed Time Slot</p>
-                              <p className="text-xl font-black text-slate-900">{order.pickupTimeSlot}</p>
-                              <p className="mt-2 text-xs font-bold text-slate-400 italic">Expected at Bay 3</p>
-                           </div>
-                        </div>
+                      <div className="space-y-10">
+                         <div className="flex items-start gap-5">
+                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
+                               <Clock className="w-6 h-6" />
+                            </div>
+                            <div>
+                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Confirmed Time Slot</p>
+                               <p className="text-xl font-black text-slate-900">{order.pickupTimeSlot}</p>
+                               <p className="mt-2 text-xs font-bold text-slate-400 italic">Expected at Bay 3</p>
+                            </div>
+                         </div>
 
-                        <div className="flex items-start gap-5">
-                           <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
-                              <Package className="w-6 h-6" />
-                           </div>
-                           <div>
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pickup Quantity</p>
-                              <p className="text-xl font-black text-slate-900">{order.pickupQuantity}</p>
-                              <p className="mt-2 text-xs font-bold text-slate-400 italic">Full tank capacity: 15,000 L</p>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
+                         <div className="flex items-start gap-5">
+                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
+                               <Package className="w-6 h-6" />
+                            </div>
+                            <div>
+                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pickup Quantity</p>
+                               <p className="text-xl font-black text-slate-900">{order.pickupQuantity}</p>
+                               <p className="mt-2 text-xs font-bold text-slate-400 italic">Full tank capacity: 15,000 L</p>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
 
-                  <div className="mt-16 pt-10 border-t border-slate-50 flex items-center justify-between">
-                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 text-primary flex items-center justify-center">
-                           <Info className="w-5 h-5" />
-                        </div>
-                        <p className="text-xs font-bold text-slate-500 max-w-sm">
-                           This information is synchronized with the **Gate Control** and **Terminal Manager** for seamless arrival verification.
-                        </p>
-                     </div>
-                     {!isVerified ? (
-                        <button 
-                          onClick={() => {
-                            setIsVerified(true);
-                            setShowPassLink(true);
-                          }}
-                          className="px-8 py-4 bg-primary text-white text-xs font-black rounded-2xl shadow-xl shadow-primary/20 hover:shadow-xl hover:-translate-y-1 transition-all uppercase tracking-widest"
-                        >
-                          Verify & Confirm Slot
-                        </button>
-                     ) : (
-                        <div className="flex items-center gap-4">
-                           <div className="flex flex-col items-end">
-                              <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Verification Complete</p>
-                              <p className="text-xs font-bold text-slate-400">Digital Pass Generated</p>
-                           </div>
-                           <Link 
-                              to={`/terminal-pass/${id}`}
-                              target="_blank"
-                              className="px-8 py-4 bg-green-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-green-200 hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-widest flex items-center gap-2"
-                           >
-                              <QrCode className="w-4 h-4" />
-                              View Access Pass
-                           </Link>
-                        </div>
-                     )}
-                  </div>
+                   <div className="mt-16 pt-10 border-t border-slate-50 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 rounded-full bg-blue-50 text-primary flex items-center justify-center">
+                            <Info className="w-5 h-5" />
+                         </div>
+                         <p className="text-xs font-bold text-slate-500 max-w-sm">
+                            This information is synchronized with the **Gate Control** and **Terminal Manager** for seamless arrival verification.
+                         </p>
+                      </div>
+                      {!isVerified ? (
+                         <button 
+                           onClick={() => {
+                             setIsVerified(true);
+                             setShowPassLink(true);
+                           }}
+                           className="px-8 py-4 bg-primary text-white text-xs font-black rounded-2xl shadow-xl shadow-primary/20 hover:shadow-xl hover:-translate-y-1 transition-all uppercase tracking-widest"
+                         >
+                           Verify & Confirm Slot
+                         </button>
+                      ) : (
+                         <div className="flex items-center gap-4">
+                            <div className="flex flex-col items-end">
+                               <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Verification Complete</p>
+                               <p className="text-xs font-bold text-slate-400">Digital Pass Generated</p>
+                            </div>
+                            <Link 
+                               to={`/terminal-pass/${id}`}
+                               target="_blank"
+                               className="px-8 py-4 bg-green-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-green-200 hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-widest flex items-center gap-2"
+                            >
+                               <QrCode className="w-4 h-4" />
+                               View Access Pass
+                            </Link>
+                         </div>
+                      )}
+                   </div>
+                </div>
+             </div>
+          </div>
+        ) : (
+          /* Documents Tab Content */
+          <div className="lg:col-span-3">
+            <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm min-h-[500px]">
+               <div className="max-w-2xl">
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-8">Trip Documentation</h3>
+                  <OrderDocumentsTab orderId={order.id} />
                </div>
             </div>
           </div>

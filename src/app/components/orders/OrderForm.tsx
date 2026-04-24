@@ -1,5 +1,5 @@
 import { Link, useParams, useNavigate } from 'react-router';
-import { ArrowLeft, Save, X, Info } from 'lucide-react';
+import { ArrowLeft, Save, X, Info, Plus, FileText, Trash2 } from 'lucide-react';
 import { OrderType } from '../../types/order';
 
 interface OrderFormProps {
@@ -136,6 +136,38 @@ export function OrderForm({ onClose, hideTitle }: OrderFormProps) {
               defaultValue={isEdit ? 'Handle with care. Ensure proper sealing.' : ''}
               className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold resize-none shadow-sm"
             />
+          </div>
+
+          <div className="pt-4 border-t border-slate-100">
+            <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-4 px-1">Documentation & Attachments</h4>
+            <div className="space-y-3">
+              <div className="p-8 border-2 border-dashed border-slate-100 rounded-[32px] flex flex-col items-center justify-center gap-3 bg-slate-50/30 group hover:border-primary/20 hover:bg-white transition-all cursor-pointer">
+                <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-slate-300 group-hover:text-primary shadow-sm border border-slate-50 transition-colors">
+                  <Plus className="w-6 h-6" />
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Upload Trip Documents</p>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Delivery Notes, Certificates, Photos</p>
+                </div>
+              </div>
+              
+              {isEdit && (
+                <div className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500 border border-blue-100">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-900 uppercase tracking-tight">Initial_PO_Request.pdf</p>
+                      <p className="text-[9px] font-bold text-slate-400">Uploaded 2 days ago</p>
+                    </div>
+                  </div>
+                  <button type="button" className="p-2 text-slate-300 hover:text-red-500 transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

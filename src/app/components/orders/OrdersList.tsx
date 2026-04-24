@@ -3,12 +3,13 @@ import { Link } from 'react-router';
 import { 
   Plus, Search, Filter, MoreHorizontal, Edit, Trash2, 
   CheckCircle2, XCircle, UserPlus, Clock, ArrowRight,
-  ShieldCheck, AlertCircle, Info, Tag
+  ShieldCheck, AlertCircle, Info, Tag, Truck, Package, Container
 } from 'lucide-react';
 import { SidePanel } from '../ui/SidePanel';
 import { OrderForm } from './OrderForm';
 import { OrderAssignModal } from './OrderAssignModal';
 import { OrderScheduleForm } from './OrderScheduleForm';
+import { OrderDocumentsTab } from './OrderDocumentsTab';
 import { Order, OrderStatus, Transporter } from '../../types/order';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -112,12 +113,27 @@ const initialOrders: Order[] = [
     driverName: 'John Smith',
     loadedQuantity: '20,005 L',
     loadingManagerName: 'Mike Johnson'
+  },
+  { 
+    id: 'ORD-2406', 
+    customerName: 'Global Logistics', 
+    contactNumber: '+1 234 567 8906',
+    product: 'Diesel', 
+    quantity: '15000 L', 
+    status: 'AT_GATE', 
+    type: 'SYSTEM',
+    date: '2026-04-24',
+    pickupLocation: 'Terminal A, Bay 3',
+    deliveryLocation: 'Main Depot',
+    deliveryDeadline: '2026-04-26T12:00',
+    assignedTransporterId: 'T-101',
+    assignedTransporterName: 'Global Logistics Solutions'
   }
 ];
 
 const statusConfig: Record<OrderStatus, { label: string; color: string; icon: any }> = {
-  WAITING_FOR_APPROVAL: { label: 'Waiting Approval', color: 'bg-amber-50 text-amber-600 border-amber-100', icon: Clock },
-  TRANSPORTER_ASSIGNED: { label: 'Transporter Assigned', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: UserPlus },
+  WAITING_FOR_APPROVAL: { label: 'Order Pending', color: 'bg-amber-50 text-amber-600 border-amber-100', icon: Clock },
+  TRANSPORTER_ASSIGNED: { label: 'Waiting for Approval', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: UserPlus },
   REJECTED: { label: 'Rejected', color: 'bg-red-50 text-red-600 border-red-100', icon: XCircle },
   ACCEPTED: { label: 'Accepted', color: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: CheckCircle2 },
   AT_GATE: { label: 'At Gate', color: 'bg-orange-50 text-orange-600 border-orange-100', icon: Truck },
@@ -133,14 +149,16 @@ export function OrdersList() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isSchedulePanelOpen, setIsSchedulePanelOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'SCHEDULE' | 'DOCUMENTS'>('SCHEDULE');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const isAdmin = user?.role === 'ADMIN';
   const isTransporter = user?.role === 'TRANSPORTER';
+  const isLoadingManager = user?.role === 'LOADING_MANAGER';
 
   // Filter orders based on role
   const displayedOrders = orders.filter(order => {
-    if (isAdmin) return true;
+    if (isAdmin || isLoadingManager) return true;
     if (isTransporter) return order.assignedTransporterId === 'T-101'; // Mocking current transporter ID
     return false;
   });
@@ -303,10 +321,17 @@ export function OrdersList() {
                         <StatusIcon className="w-3.5 h-3.5" />
                         {config.label}
                       </div>
-                      {order.status === 'REJECTED' && order.rejectionReason && (
-                        <div className="mt-2 flex items-center gap-1.5 text-[9px] font-bold text-red-400">
-                          <AlertCircle className="w-3 h-3" />
-                          {order.rejectionReason}
+                      {order.status === 'REJECTED' && (
+                        <div className="mt-2 space-y-1">
+                          <div className="flex items-center gap-1.5 text-[9px] font-black text-red-500 uppercase tracking-wider">
+                            <XCircle className="w-3 h-3" />
+                            Rejected by {order.assignedTransporterName || 'Transporter'}
+                          </div>
+                          {order.rejectionReason && (
+                            <div className="flex items-center gap-1.5 text-[9px] font-bold text-red-400 italic ml-4">
+                              "{order.rejectionReason}"
+                            </div>
+                          )}
                         </div>
                       )}
                     </td>
@@ -349,6 +374,16 @@ export function OrdersList() {
                           </>
                         )}
 
+                        {isLoadingManager && order.status === 'AT_GATE' && (
+                          <Link 
+                            to="/loading" 
+                            className="px-3 py-1.5 bg-blue-600 text-white text-[10px] font-black rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-900/20 transition-all uppercase flex items-center gap-1.5"
+                          >
+                            <Container className="w-3.5 h-3.5" />
+                            Start Loading
+                          </Link>
+                        )}
+
                         <button className="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-xl transition-all">
                            <MoreHorizontal className="w-4 h-4" />
                         </button>
@@ -382,25 +417,56 @@ export function OrdersList() {
         currentTransporterId={selectedOrder?.assignedTransporterId}
       />
 
-      {/* Side Panel for Transporter Scheduling */}
       <SidePanel
         isOpen={isSchedulePanelOpen}
         onClose={() => {
           setIsSchedulePanelOpen(false);
           setSelectedOrder(null);
+          setActiveTab('SCHEDULE');
         }}
-        title="Schedule Pickup Information"
+        title={activeTab === 'SCHEDULE' ? 'Schedule Pickup Information' : 'Associated Documents'}
       >
-        {selectedOrder && (
-          <OrderScheduleForm 
-            order={selectedOrder} 
-            onSubmit={handleScheduleSubmit}
-            onCancel={() => {
-              setIsSchedulePanelOpen(false);
-              setSelectedOrder(null);
-            }}
-          />
-        )}
+        <div className="flex flex-col h-full">
+          {/* Tab Headers */}
+          <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl mb-6">
+            <button 
+              onClick={() => setActiveTab('SCHEDULE')}
+              className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${
+                activeTab === 'SCHEDULE' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              Pickup Schedule
+            </button>
+            <button 
+              onClick={() => setActiveTab('DOCUMENTS')}
+              className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${
+                activeTab === 'DOCUMENTS' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              Documents
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          <div className="flex-1 overflow-y-auto pr-1">
+            {selectedOrder && (
+              <>
+                {activeTab === 'SCHEDULE' ? (
+                  <OrderScheduleForm 
+                    order={selectedOrder} 
+                    onSubmit={handleScheduleSubmit}
+                    onCancel={() => {
+                      setIsSchedulePanelOpen(false);
+                      setSelectedOrder(null);
+                    }}
+                  />
+                ) : (
+                  <OrderDocumentsTab orderId={selectedOrder.id} />
+                )}
+              </>
+            )}
+          </div>
+        </div>
       </SidePanel>
     </div>
   );

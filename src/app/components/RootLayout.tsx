@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Package, Truck, DoorOpen, Container,
   MapPin, FileText, BarChart3, Search, Bell, User,
   Menu, ChevronLeft, ChevronDown, Settings, HelpCircle,
-  Plus, Grid, Filter, RotateCw, Download, Eye, Copy, Command,
+  Plus, Command,
   LogOut, Shield, Terminal
 } from 'lucide-react';
 
@@ -25,7 +25,8 @@ export function RootLayout() {
     {
       title: 'Operations',
       items: [
-        { path: '/orders', label: 'Orders', icon: Package, roles: ['ADMIN', 'TRANSPORTER'] },
+        { path: '/orders', label: 'Orders', icon: Package, roles: ['ADMIN', 'TRANSPORTER', 'LOADING_MANAGER'] },
+        { path: '/transporters', label: 'Transporters', icon: Truck, roles: ['ADMIN'] },
         { path: '/gate', label: 'Gate Control', icon: DoorOpen, roles: ['ADMIN', 'TERMINAL_MANAGER'] },
         { path: '/loading', label: 'Loading', icon: Container, roles: ['ADMIN', 'LOADING_MANAGER'] },
       ]
@@ -34,7 +35,6 @@ export function RootLayout() {
       title: 'Intelligence',
       items: [
         { path: '/tracking', label: 'Tracking', icon: MapPin, roles: ['ADMIN', 'TRANSPORTER'] },
-        { path: '/documents', label: 'Documents', icon: FileText, roles: ['ADMIN'] },
         { path: '/reports', label: 'Reports', icon: BarChart3, roles: ['ADMIN'] },
       ]
     },
@@ -214,13 +214,6 @@ export function RootLayout() {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 pr-4 border-r border-slate-100 mr-2">
-               {[Grid, Filter, RotateCw, Download, Eye, Copy].map((BtnIcon, i) => (
-                  <button key={i} className="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-lg transition-all">
-                     <BtnIcon className="w-4 h-4" />
-                  </button>
-               ))}
-            </div>
             {user?.role === 'ADMIN' && (
               <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all mr-4">
                 <Plus className="w-4 h-4" />
