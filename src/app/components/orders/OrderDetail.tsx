@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { 
   ArrowLeft, Edit, Truck, Calendar, User, 
   Package, MapPin, Clock, ShieldCheck, Info,
@@ -290,42 +291,44 @@ export function OrderDetail({ order, activeTab: initialTab, setActiveTab: setExt
                       </div>
                    </div>
 
-                   <div className="mt-16 pt-10 border-t border-slate-50 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                         <div className="w-10 h-10 rounded-full bg-blue-50 text-primary flex items-center justify-center">
-                            <Info className="w-5 h-5" />
-                         </div>
-                         <p className="text-xs font-bold text-slate-500 max-w-sm">
-                            This information is synchronized with the **Gate Control** and **Checkpost Manager** for seamless arrival verification.
-                         </p>
-                      </div>
-                      {!isVerified ? (
-                         <button 
-                           onClick={() => {
-                             setIsVerified(true);
-                             setShowPassLink(true);
-                           }}
-                           className="px-8 py-4 bg-primary text-white text-xs font-black rounded-2xl shadow-xl shadow-primary/20 hover:shadow-xl hover:-translate-y-1 transition-all uppercase tracking-widest"
-                         >
-                           Verify & Confirm Slot
-                         </button>
-                      ) : (
-                         <div className="flex items-center gap-4">
-                            <div className="flex flex-col items-end">
-                               <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Verification Complete</p>
-                               <p className="text-xs font-bold text-slate-400">Digital Pass Generated</p>
-                            </div>
-                            <Link 
-                               to={`/terminal-pass/${id}`}
-                               target="_blank"
-                               className="px-8 py-4 bg-green-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-green-200 hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-widest flex items-center gap-2"
-                            >
-                               <QrCode className="w-4 h-4" />
-                               View Access Pass
-                            </Link>
-                         </div>
-                      )}
-                   </div>
+                    {order.status === 'ACCEPTED' && (
+                       <div className="mt-16 pt-10 border-t border-slate-50 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                             <div className="w-10 h-10 rounded-full bg-blue-50 text-primary flex items-center justify-center">
+                                <Info className="w-5 h-5" />
+                             </div>
+                             <p className="text-xs font-bold text-slate-500 max-w-sm">
+                                This information is synchronized with the **Gate Control** and **Checkpost Manager** for seamless arrival verification.
+                             </p>
+                          </div>
+                          {!isVerified ? (
+                             <button 
+                               onClick={() => {
+                                 setIsVerified(true);
+                                 setShowPassLink(true);
+                               }}
+                               className="px-8 py-4 bg-primary text-white text-xs font-black rounded-2xl shadow-xl shadow-primary/20 hover:shadow-xl hover:-translate-y-1 transition-all uppercase tracking-widest"
+                             >
+                               Verify & Confirm Slot
+                             </button>
+                          ) : (
+                             <div className="flex items-center gap-4">
+                                <div className="flex flex-col items-end">
+                                   <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Verification Complete</p>
+                                   <p className="text-xs font-bold text-slate-400">Digital Pass Generated</p>
+                                </div>
+                                <Link 
+                                   to={`/terminal-pass/${order.id}`}
+                                   target="_blank"
+                                   className="px-8 py-4 bg-green-500 text-white text-xs font-black rounded-2xl shadow-xl shadow-green-200 hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-widest flex items-center gap-2"
+                                >
+                                   <QrCode className="w-4 h-4" />
+                                   View Access Pass
+                                </Link>
+                             </div>
+                          )}
+                       </div>
+                    )}
                 </div>
              </div>
           </div>
@@ -370,7 +373,7 @@ export function OrderDetail({ order, activeTab: initialTab, setActiveTab: setExt
                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Shareable Pass URL</span>
                        <button 
                          onClick={() => {
-                           navigator.clipboard.writeText(`${window.location.origin}/terminal-pass/${id}`);
+                           navigator.clipboard.writeText(`${window.location.origin}/terminal-pass/${order.id}`);
                            alert('Link copied to clipboard!');
                          }}
                          className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
@@ -379,12 +382,12 @@ export function OrderDetail({ order, activeTab: initialTab, setActiveTab: setExt
                        </button>
                     </div>
                     <div className="bg-white px-4 py-3 rounded-xl border border-slate-100 text-xs font-bold text-slate-600 break-all select-all">
-                       {window.location.origin}/terminal-pass/{id}
+                       {window.location.origin}/terminal-pass/{order.id}
                     </div>
                  </div>
 
                  <Link 
-                    to={`/terminal-pass/${id}`}
+                    to={`/terminal-pass/${order.id}`}
                     target="_blank"
                     className="w-full py-4 bg-primary text-white text-sm font-black rounded-2xl shadow-xl shadow-primary/20 hover:shadow-xl hover:-translate-y-1 transition-all uppercase tracking-widest flex items-center justify-center gap-3"
                  >

@@ -59,13 +59,17 @@ const initialOrders: Order[] = [
     customerName: 'ABC Logistics', 
     product: 'Diesel', 
     quantity: '15000 L', 
-    status: 'WAITING_FOR_APPROVAL', 
+    status: 'ACCEPTED', 
     type: 'SYSTEM',
     date: '2026-04-24',
     pickupLocation: 'Terminal A, Bay 3',
     deliveryLocation: 'ABC Logistics Depot',
     assignedTransporterId: 'T-101',
-    assignedTransporterName: 'Global Logistics Solutions'
+    assignedTransporterName: 'Global Logistics Solutions',
+    truckNumber: 'TN-45-AX-1234',
+    driverName: 'Robert Fox',
+    pickupTimeSlot: '2026-04-24 10:30 AM',
+    pickupQuantity: '15,000 L'
   },
   { 
     id: 'ORD-2402', 
@@ -124,14 +128,16 @@ const initialOrders: Order[] = [
     customerName: 'Global Logistics', 
     product: 'Diesel', 
     quantity: '15000 L', 
-    status: 'YET_TO_COME', 
+    status: 'ACCEPTED', 
     type: 'SYSTEM',
     date: '2026-04-24',
     pickupLocation: 'Terminal A, Bay 3',
     deliveryLocation: 'Main Depot',
     assignedTransporterName: 'Global Logistics Solutions',
-    truckNumber: 'TN-45-AX-1234',
-    driverName: 'Robert Fox'
+    truckNumber: 'UK-22-KJ-7744',
+    driverName: 'Jenny Wilson',
+    pickupTimeSlot: '2026-04-24 02:30 PM',
+    pickupQuantity: '15,000 L'
   },
   { 
     id: 'ORD-2407', 
