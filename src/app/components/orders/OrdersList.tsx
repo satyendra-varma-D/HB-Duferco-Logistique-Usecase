@@ -83,14 +83,48 @@ const initialOrders: Order[] = [
     assignedTransporterName: 'Express Freight Co.',
     rejectionReason: 'Vehicle unavailable for the requested slot.'
   },
+  { 
+    id: 'ORD-2406', 
+    customerName: 'Global Logistics', 
+    product: 'Diesel', 
+    quantity: '15000 L', 
+    status: 'AT_GATE', 
+    type: 'SYSTEM',
+    date: '2026-04-24',
+    pickupLocation: 'Terminal A, Bay 3',
+    deliveryLocation: 'Main Depot',
+    assignedTransporterName: 'Global Logistics Solutions',
+    truckNumber: 'TN-45-AX-1234',
+    driverName: 'Robert Fox'
+  },
+  { 
+    id: 'ORD-2407', 
+    customerName: 'Safe Fuel Co', 
+    product: 'Petrol', 
+    quantity: '20000 L', 
+    status: 'LOADED', 
+    type: 'MANUAL',
+    date: '2026-04-24',
+    pickupLocation: 'Terminal B, Bay 2',
+    deliveryLocation: 'Station X',
+    assignedTransporterName: 'Swift Transport',
+    truckNumber: 'BE-88-ZZ-9999',
+    driverName: 'John Smith',
+    loadedQuantity: '20,005 L',
+    loadingManagerName: 'Mike Johnson'
+  }
 ];
 
 const statusConfig: Record<OrderStatus, { label: string; color: string; icon: any }> = {
-  WAITING_FOR_APPROVAL: { label: 'Waiting Approval', color: 'bg-amber-100 text-amber-700 border-amber-200', icon: Clock },
-  TRANSPORTER_ASSIGNED: { label: 'Transporter Assigned', color: 'bg-blue-100 text-blue-700 border-blue-200', icon: UserPlus },
-  REJECTED: { label: 'Rejected', color: 'bg-red-100 text-red-700 border-red-200', icon: XCircle },
-  ACCEPTED: { label: 'Accepted', color: 'bg-indigo-100 text-indigo-700 border-indigo-200', icon: CheckCircle2 },
-  COMPLETED: { label: 'Completed', color: 'bg-green-100 text-green-700 border-green-200', icon: ShieldCheck },
+  WAITING_FOR_APPROVAL: { label: 'Waiting Approval', color: 'bg-amber-50 text-amber-600 border-amber-100', icon: Clock },
+  TRANSPORTER_ASSIGNED: { label: 'Transporter Assigned', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: UserPlus },
+  REJECTED: { label: 'Rejected', color: 'bg-red-50 text-red-600 border-red-100', icon: XCircle },
+  ACCEPTED: { label: 'Accepted', color: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: CheckCircle2 },
+  AT_GATE: { label: 'At Gate', color: 'bg-orange-50 text-orange-600 border-orange-100', icon: Truck },
+  LOADING: { label: 'Loading', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: Package },
+  LOADED: { label: 'Loaded', color: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: CheckCircle2 },
+  IN_TRANSIT: { label: 'In Transit', color: 'bg-violet-50 text-violet-600 border-violet-100', icon: Truck },
+  COMPLETED: { label: 'Completed', color: 'bg-green-50 text-green-600 border-green-100', icon: ShieldCheck },
 };
 
 export function OrdersList() {

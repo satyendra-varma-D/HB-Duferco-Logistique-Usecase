@@ -1,183 +1,219 @@
 import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router';
-import { ArrowLeft, Save, AlertTriangle } from 'lucide-react';
+import { 
+  ArrowLeft, Save, CheckCircle2, Truck, User, 
+  Camera, Package, AlertCircle, Play, CheckCircle, ShieldCheck
+} from 'lucide-react';
 
 export function LoadingForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [plannedQty] = useState(5000);
-  const [actualQty, setActualQty] = useState('');
-  const variance = actualQty ? ((Number(actualQty) - plannedQty) / plannedQty * 100) : 0;
+  const [step, setStep] = useState<'checklist' | 'loading' | 'completed'>('checklist');
+  const [checklist, setChecklist] = useState({
+    driverVerified: false,
+    truckVerified: false,
+    safetyCheck: false,
+    imageUploaded: false
+  });
+  const [loadedQty, setLoadedQty] = useState('15000');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleStartLoading = () => {
+    if (checklist.driverVerified && checklist.truckVerified && checklist.imageUploaded) {
+      setStep('loading');
+    }
+  };
+
+  const handleCompleteLoading = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate(`/loading/${id}`);
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setStep('completed');
+      setIsSubmitting(false);
+      // In a real app, this would update the status to 'LOADED'
+      setTimeout(() => navigate('/loading'), 2000);
+    }, 1500);
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link to={`/loading/${id}`} className="p-2 hover:bg-muted rounded transition-colors">
-            <ArrowLeft className="w-5 h-5" />
+    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+        <div className="flex items-center gap-4">
+          <Link to="/loading" className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-colors group">
+            <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:text-primary transition-colors" />
           </Link>
-          <h2>Execute Loading: {id}</h2>
+          <div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Loading Operation</h2>
+            <p className="text-xs font-bold text-slate-400">Order Ref: {id}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+           <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+             step === 'checklist' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+             step === 'loading' ? 'bg-blue-50 text-blue-600 border-blue-100 animate-pulse' :
+             'bg-green-50 text-green-600 border-green-100'
+           }`}>
+             {step === 'checklist' ? 'Verification' : step === 'loading' ? 'In Progress' : 'Loaded'}
+           </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-3xl">
-        <div className="bg-card border border-border rounded">
-          <div className="px-4 py-3 border-b border-border">
-            <h3>Loading Information</h3>
-          </div>
-          <div className="p-4 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-muted/50 p-4 rounded">
-                <div className="text-sm text-muted-foreground mb-2">Trip ID</div>
-                <div className="text-lg font-medium">{id}</div>
-              </div>
-              <div className="bg-muted/50 p-4 rounded">
-                <div className="text-sm text-muted-foreground mb-2">Product</div>
-                <div className="text-lg font-medium">Diesel</div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm mb-2">Loading Bay *</label>
-                <select
-                  required
-                  className="w-full px-3 py-2 bg-input border border-border rounded outline-none focus:ring-2 ring-ring"
-                >
-                  <option value="">Select Bay</option>
-                  <option value="bay1">Bay 1</option>
-                  <option value="bay2">Bay 2</option>
-                  <option value="bay3" selected>Bay 3</option>
-                  <option value="bay4">Bay 4</option>
-                  <option value="bay5">Bay 5</option>
-                </select>
+      {step === 'checklist' && (
+        <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm space-y-10 animate-in slide-in-from-bottom-4 duration-500">
+           <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div>
-                <label className="block text-sm mb-2">Loading Arm *</label>
-                <select
-                  required
-                  className="w-full px-3 py-2 bg-input border border-border rounded outline-none focus:ring-2 ring-ring"
-                >
-                  <option value="">Select Arm</option>
-                  <option value="arm01">ARM-01</option>
-                  <option value="arm02">ARM-02</option>
-                  <option value="arm03" selected>ARM-03</option>
-                  <option value="arm04">ARM-04</option>
-                </select>
+                 <h3 className="text-xl font-black text-slate-900">Loading Manager Checklist</h3>
+                 <p className="text-sm font-bold text-slate-400">Please verify all information before starting the pump.</p>
               </div>
-            </div>
+           </div>
 
-            <div className="grid grid-cols-2 gap-4">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Checklist Items */}
+              <div className="space-y-4">
+                 {[
+                   { id: 'driverVerified', label: 'Verify Driver Identity', icon: User },
+                   { id: 'truckVerified', label: 'Verify Truck Number Plate', icon: Truck },
+                   { id: 'safetyCheck', label: 'Safety Grounding & PPE Check', icon: ShieldCheck },
+                 ].map((item) => (
+                   <label key={item.id} className="flex items-center justify-between p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all">
+                      <div className="flex items-center gap-4">
+                         <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 border border-slate-100">
+                            <item.icon className="w-5 h-5" />
+                         </div>
+                         <span className="text-sm font-black text-slate-700">{item.label}</span>
+                      </div>
+                      <input 
+                         type="checkbox" 
+                         checked={checklist[item.id as keyof typeof checklist]}
+                         onChange={(e) => setChecklist({...checklist, [item.id]: e.target.checked})}
+                         className="w-6 h-6 rounded-lg border-slate-200 text-primary focus:ring-primary/20 cursor-pointer"
+                      />
+                   </label>
+                 ))}
+              </div>
+
+              {/* Photo Upload */}
+              <div className="space-y-4">
+                 <div className={`h-full border-2 border-dashed rounded-[32px] p-8 flex flex-col items-center justify-center text-center transition-all ${
+                    checklist.imageUploaded ? 'border-green-200 bg-green-50/30' : 'border-slate-200 bg-slate-50/30'
+                 }`}>
+                    {checklist.imageUploaded ? (
+                       <>
+                          <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center text-white mb-4 shadow-lg shadow-green-200">
+                             <CheckCircle className="w-8 h-8" />
+                          </div>
+                          <p className="text-sm font-black text-green-600">Truck Photo Captured</p>
+                          <button onClick={() => setChecklist({...checklist, imageUploaded: false})} className="mt-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-red-500">Retake</button>
+                       </>
+                    ) : (
+                       <>
+                          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-slate-300 mb-4 border border-slate-100 shadow-sm">
+                             <Camera className="w-8 h-8" />
+                          </div>
+                          <p className="text-sm font-black text-slate-900">Vehicle Photo Required</p>
+                          <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Upload image of the loaded compartment</p>
+                          <button 
+                             onClick={() => setChecklist({...checklist, imageUploaded: true})}
+                             className="mt-6 px-6 py-2 bg-white text-primary text-[10px] font-black rounded-xl border border-primary/20 shadow-sm uppercase tracking-widest hover:bg-primary hover:text-white transition-all"
+                          >
+                             Capture Photo
+                          </button>
+                       </>
+                    )}
+                 </div>
+              </div>
+           </div>
+
+           <div className="pt-8 border-t border-slate-50">
+              <button 
+                 disabled={!Object.values(checklist).every(v => v)}
+                 onClick={handleStartLoading}
+                 className="w-full py-5 bg-[#0047AB] text-white text-sm font-black rounded-3xl shadow-xl shadow-blue-900/20 hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0"
+              >
+                 <Play className="w-6 h-6" />
+                 Initiate Loading Process
+              </button>
+           </div>
+        </div>
+      )}
+
+      {step === 'loading' && (
+        <form onSubmit={handleCompleteLoading} className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm space-y-10 animate-in zoom-in-95 duration-500">
+           <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-500">
+                 <Package className="w-6 h-6" />
+              </div>
               <div>
-                <label className="block text-sm mb-2">Operator Name *</label>
-                <input
-                  type="text"
-                  required
-                  defaultValue="Mike Johnson"
-                  className="w-full px-3 py-2 bg-input border border-border rounded outline-none focus:ring-2 ring-ring"
-                />
+                 <h3 className="text-xl font-black text-slate-900">Quantity Recording</h3>
+                 <p className="text-sm font-bold text-slate-400">Record the final meter reading from the loading arm.</p>
               </div>
-              <div>
-                <label className="block text-sm mb-2">Start Time *</label>
-                <input
-                  type="datetime-local"
-                  required
-                  defaultValue="2026-04-23T10:30"
-                  className="w-full px-3 py-2 bg-input border border-border rounded outline-none focus:ring-2 ring-ring"
-                />
-              </div>
-            </div>
+           </div>
 
-            <div className="border-t border-border pt-4 mt-4">
-              <h4 className="mb-4">Quantity Recording</h4>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-muted/50 p-4 rounded">
-                  <div className="text-sm text-muted-foreground mb-2">Planned Quantity</div>
-                  <div className="text-2xl font-medium">{plannedQty.toLocaleString()} L</div>
-                </div>
-                <div>
-                  <label className="block text-sm mb-2">Actual Quantity (L) *</label>
-                  <input
-                    type="number"
-                    required
-                    value={actualQty}
-                    onChange={(e) => setActualQty(e.target.value)}
-                    placeholder="0"
-                    className="w-full px-3 py-3 bg-input border border-border rounded outline-none focus:ring-2 ring-ring text-lg"
-                  />
-                </div>
-                <div className="bg-muted/50 p-4 rounded">
-                  <div className="text-sm text-muted-foreground mb-2">Variance</div>
-                  <div className={`text-2xl font-medium ${variance !== 0 ? (variance > 0 ? 'text-[#10B981]' : 'text-[#EF4444]') : ''}`}>
-                    {actualQty ? `${variance > 0 ? '+' : ''}${variance.toFixed(1)}%` : '--'}
-                  </div>
-                </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              <div className="space-y-6">
+                 <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Quantity</p>
+                    <p className="text-3xl font-black text-slate-900">15,000 L</p>
+                 </div>
+                 <div className="space-y-2 px-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Actual Loaded Quantity (L)</label>
+                    <input 
+                       type="number"
+                       value={loadedQty}
+                       onChange={(e) => setLoadedQty(e.target.value)}
+                       className="w-full px-6 py-5 bg-white border-2 border-[#0047AB]/20 rounded-3xl outline-none focus:border-[#0047AB] transition-all text-2xl font-black text-slate-900"
+                    />
+                 </div>
               </div>
 
-              {actualQty && Math.abs(variance) > 2 && (
-                <div className="bg-[#EF4444]/10 border border-[#EF4444]/20 text-[#EF4444] p-4 rounded flex items-start gap-3 mt-4">
-                  <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-medium mb-1">High Variance Warning</div>
-                    <div className="text-sm">
-                      Variance exceeds acceptable threshold (±2%). Please verify the measurement before submitting.
+              <div className="flex flex-col justify-center gap-4">
+                 <div className="flex items-start gap-4 p-6 rounded-3xl bg-blue-50 border border-blue-100">
+                    <AlertCircle className="w-5 h-5 text-blue-500 shrink-0" />
+                    <div>
+                       <p className="text-xs font-black text-blue-900">Automatic Sync</p>
+                       <p className="text-[11px] font-medium text-blue-700 mt-1">
+                          The final quantity will be shared with the Terminal Manager for exit clearance. Ensure the meter reading is accurate.
+                       </p>
                     </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm mb-2">Meter Start Reading</label>
-                <input
-                  type="number"
-                  className="w-full px-3 py-2 bg-input border border-border rounded outline-none focus:ring-2 ring-ring"
-                  placeholder="150000"
-                />
+                 </div>
               </div>
-              <div>
-                <label className="block text-sm mb-2">Meter End Reading</label>
-                <input
-                  type="number"
-                  className="w-full px-3 py-2 bg-input border border-border rounded outline-none focus:ring-2 ring-ring"
-                  placeholder="155000"
-                />
-              </div>
-            </div>
+           </div>
 
-            <div>
-              <label className="block text-sm mb-2">Loading Notes</label>
-              <textarea
-                rows={3}
-                className="w-full px-3 py-2 bg-input border border-border rounded outline-none focus:ring-2 ring-ring resize-none"
-                placeholder="Any observations or issues during loading..."
-              />
-            </div>
-          </div>
-        </div>
+           <div className="pt-8 border-t border-slate-50">
+              <button 
+                 type="submit"
+                 disabled={isSubmitting}
+                 className="w-full py-5 bg-green-500 text-white text-sm font-black rounded-3xl shadow-xl shadow-green-200 hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0"
+              >
+                 {isSubmitting ? 'Processing...' : (
+                    <>
+                       <Save className="w-6 h-6" />
+                       Complete & Seal Compartment
+                    </>
+                 )}
+              </button>
+           </div>
+        </form>
+      )}
 
-        <div className="flex items-center gap-3 mt-6">
-          <button
-            type="submit"
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
-          >
-            <Save className="w-4 h-4" />
-            Complete Loading
-          </button>
-          <Link
-            to={`/loading/${id}`}
-            className="px-4 py-2 border border-border rounded hover:bg-muted transition-colors"
-          >
-            Cancel
-          </Link>
+      {step === 'completed' && (
+        <div className="bg-white p-16 rounded-[40px] border border-slate-100 shadow-sm text-center space-y-6 animate-in zoom-in-95 duration-500">
+           <div className="w-24 h-24 rounded-full bg-green-500 flex items-center justify-center text-white mx-auto shadow-xl shadow-green-200">
+              <CheckCircle2 className="w-12 h-12" />
+           </div>
+           <div>
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">Loading Complete</h3>
+              <p className="text-sm font-bold text-slate-400 mt-2">The vehicle has been loaded with {loadedQty} L of Diesel.</p>
+           </div>
+           <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest pt-4">Status Updated to: LOADED</p>
+           <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Headed to Gate Check-Out</p>
         </div>
-      </form>
+      )}
     </div>
   );
 }
+

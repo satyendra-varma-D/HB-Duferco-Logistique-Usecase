@@ -1,4 +1,4 @@
-export type OrderStatus = 'WAITING_FOR_APPROVAL' | 'TRANSPORTER_ASSIGNED' | 'REJECTED' | 'ACCEPTED' | 'COMPLETED';
+export type OrderStatus = 'WAITING_FOR_APPROVAL' | 'TRANSPORTER_ASSIGNED' | 'REJECTED' | 'ACCEPTED' | 'AT_GATE' | 'LOADING' | 'LOADED' | 'IN_TRANSIT' | 'COMPLETED';
 
 export type OrderType = 'SYSTEM' | 'MANUAL';
 
@@ -31,4 +31,7 @@ export interface Order {
   driverName?: string;
   pickupTimeSlot?: string;
   pickupQuantity?: string;
+  loadedQuantity?: string;
+  loadingManagerName?: string;
+  loadingTimestamp?: string;
 }
