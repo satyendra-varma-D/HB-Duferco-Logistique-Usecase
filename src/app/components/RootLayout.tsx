@@ -25,8 +25,8 @@ export function RootLayout() {
     {
       title: 'Operations',
       items: [
-        { path: '/orders', label: 'Orders', icon: Package, roles: ['ADMIN', 'TRANSPORTER', 'LOADING_MANAGER'] },
-        { path: '/transporters', label: 'Transporters', icon: Truck, roles: ['ADMIN'] },
+        { path: '/orders', label: 'Orders', icon: Package, roles: ['ADMIN', 'TRANSPORTER', 'LOADING_MANAGER', 'TERMINAL_MANAGER'] },
+        { path: '/transporters', label: 'Transporters', icon: Truck, roles: ['ADMIN', 'TERMINAL_MANAGER'] },
         { path: '/gate', label: 'Gate Control', icon: DoorOpen, roles: ['ADMIN', 'TERMINAL_MANAGER'] },
         { path: '/loading', label: 'Loading', icon: Container, roles: ['ADMIN', 'LOADING_MANAGER'] },
       ]

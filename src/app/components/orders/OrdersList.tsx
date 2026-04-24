@@ -155,10 +155,11 @@ export function OrdersList() {
   const isAdmin = user?.role === 'ADMIN';
   const isTransporter = user?.role === 'TRANSPORTER';
   const isLoadingManager = user?.role === 'LOADING_MANAGER';
+  const isTerminalManager = user?.role === 'TERMINAL_MANAGER';
 
   // Filter orders based on role
   const displayedOrders = orders.filter(order => {
-    if (isAdmin || isLoadingManager) return true;
+    if (isAdmin || isLoadingManager || isTerminalManager) return true;
     if (isTransporter) return order.assignedTransporterId === 'T-101'; // Mocking current transporter ID
     return false;
   });

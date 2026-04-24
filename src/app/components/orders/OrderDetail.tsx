@@ -346,7 +346,7 @@ export function OrderDetail() {
             <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm min-h-[500px]">
                <div className="max-w-2xl">
                   <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-8">Trip Documentation</h3>
-                  <OrderDocumentsTab orderId={order.id} />
+                  <OrderDocumentsTab orderId={order.id} isVerified={isVerified} />
                </div>
             </div>
           </div>
