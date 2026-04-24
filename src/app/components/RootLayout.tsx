@@ -160,7 +160,9 @@ export function RootLayout() {
               {!sidebarCollapsed && (
                 <div className="flex-1 min-w-0 text-left">
                   <div className="text-sm font-bold text-slate-900 truncate">{user?.name}</div>
-                  <div className="text-[11px] text-slate-400 truncate font-medium">{user?.role.replace('_', ' ')}</div>
+                  <div className="text-[11px] text-slate-400 truncate font-medium">
+                    {user?.role === 'TERMINAL_MANAGER' ? 'Checkpost Manager' : user?.role.replace('_', ' ')}
+                  </div>
                 </div>
               )}
               {!sidebarCollapsed && <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`} />}
@@ -214,12 +216,6 @@ export function RootLayout() {
           </div>
 
           <div className="flex items-center gap-2">
-            {user?.role === 'ADMIN' && (
-              <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all mr-4">
-                <Plus className="w-4 h-4" />
-                Quick Create
-              </button>
-            )}
             <button className="relative p-2 text-slate-400 hover:text-primary transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-[8px] font-bold text-white flex items-center justify-center rounded-full border-2 border-white">
@@ -234,7 +230,7 @@ export function RootLayout() {
 
         {/* Page Content */}
         <main className="flex-1 overflow-auto bg-[#F9FBFC]">
-           <div className="p-8 max-w-[1600px] mx-auto">
+           <div className="p-8 w-full mx-auto">
               <Outlet />
            </div>
         </main>

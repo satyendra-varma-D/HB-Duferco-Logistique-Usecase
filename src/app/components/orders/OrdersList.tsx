@@ -1,82 +1,117 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
 import { 
   Plus, Search, Filter, MoreHorizontal, Edit, Trash2, 
   CheckCircle2, XCircle, UserPlus, Clock, ArrowRight,
-  ShieldCheck, AlertCircle, Info, Tag, Truck, Package, Container
+  ShieldCheck, AlertCircle, Info, Tag, Truck, Package, Container, RotateCw,
+  ArrowLeft
 } from 'lucide-react';
-import { SidePanel } from '../ui/SidePanel';
-import { OrderForm } from './OrderForm';
-import { OrderAssignModal } from './OrderAssignModal';
-import { OrderScheduleForm } from './OrderScheduleForm';
-import { OrderDocumentsTab } from './OrderDocumentsTab';
-import { Order, OrderStatus, Transporter } from '../../types/order';
+import { OrderDetail } from './OrderDetail';
 import { useAuth } from '../../contexts/AuthContext';
+
+type OrderStatus = 
+  | 'ORDER_PENDING' 
+  | 'WAITING_FOR_APPROVAL' 
+  | 'TRANSPORTER_ASSIGNED' 
+  | 'ACCEPTED' 
+  | 'YET_TO_COME' 
+  | 'IN_TERMINAL' 
+  | 'LOADED' 
+  | 'EXITED'
+  | 'COMPLETED' 
+  | 'REJECTED';
+
+interface Order {
+  id: string;
+  customerName: string;
+  product: string;
+  quantity: string;
+  status: OrderStatus;
+  type: 'SYSTEM' | 'MANUAL';
+  date: string;
+  pickupLocation: string;
+  deliveryLocation: string;
+  assignedTransporterId?: string;
+  assignedTransporterName?: string;
+  truckNumber?: string;
+  driverName?: string;
+  deliveryDeadline?: string;
+  rejectionReason?: string;
+  loadedQuantity?: string;
+  loadingManagerName?: string;
+}
+
+const statusConfig: Record<OrderStatus, { label: string; color: string; icon: any }> = {
+  ORDER_PENDING: { label: 'ORDER PENDING', color: 'bg-amber-50 text-amber-600 border-amber-100', icon: Clock },
+  WAITING_FOR_APPROVAL: { label: 'WAITING FOR APPROVAL', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: UserPlus },
+  TRANSPORTER_ASSIGNED: { label: 'ASSIGNED', color: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: Truck },
+  ACCEPTED: { label: 'TRIP SCHEDULED', color: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: CheckCircle2 },
+  YET_TO_COME: { label: 'YET TO COME', color: 'bg-orange-50 text-orange-600 border-orange-100', icon: Info },
+  IN_TERMINAL: { label: 'IN TERMINAL', color: 'bg-blue-600 text-white border-blue-600', icon: Container },
+  LOADED: { label: 'LOADED', color: 'bg-green-100 text-green-700 border-green-200', icon: ShieldCheck },
+  EXITED: { label: 'EXITED', color: 'bg-slate-900 text-white border-slate-900', icon: XCircle },
+  COMPLETED: { label: 'COMPLETED', color: 'bg-green-50 text-green-600 border-green-100', icon: CheckCircle2 },
+  REJECTED: { label: 'REJECTED', color: 'bg-red-50 text-red-600 border-red-100', icon: XCircle },
+};
 
 const initialOrders: Order[] = [
   { 
     id: 'ORD-2401', 
     customerName: 'ABC Logistics', 
-    contactNumber: '+1 234 567 8901',
     product: 'Diesel', 
     quantity: '15000 L', 
-    status: 'TRANSPORTER_ASSIGNED', 
+    status: 'WAITING_FOR_APPROVAL', 
     type: 'SYSTEM',
-    date: '2026-04-23',
+    date: '2026-04-24',
     pickupLocation: 'Terminal A, Bay 3',
     deliveryLocation: 'ABC Logistics Depot',
-    deliveryDeadline: '2026-04-25T18:00',
     assignedTransporterId: 'T-101',
     assignedTransporterName: 'Global Logistics Solutions'
   },
   { 
     id: 'ORD-2402', 
     customerName: 'XYZ Transport', 
-    contactNumber: '+1 234 567 8902',
     product: 'Petrol', 
     quantity: '12000 L', 
     status: 'COMPLETED', 
     type: 'MANUAL',
-    date: '2026-04-22',
+    date: '2026-04-23',
     pickupLocation: 'Terminal B, Bay 1',
     deliveryLocation: 'XYZ Main Station',
-    deliveryDeadline: '2026-04-24T12:00'
+    assignedTransporterId: 'T-102',
+    assignedTransporterName: 'Express Freight Co.',
+    truckNumber: 'BE-12-G-9988',
+    driverName: 'Arlene McCoy'
   },
   { 
     id: 'ORD-2403', 
     customerName: 'Global Freight', 
-    contactNumber: '+1 234 567 8903',
     product: 'Diesel', 
     quantity: '20000 L', 
-    status: 'WAITING_FOR_APPROVAL', 
+    status: 'ORDER_PENDING', 
     type: 'SYSTEM',
-    date: '2026-04-23',
+    date: '2026-04-24',
     pickupLocation: 'Terminal A, Bay 2',
-    deliveryLocation: 'Global Distribution Center',
-    deliveryDeadline: '2026-04-26T09:00'
+    deliveryLocation: 'Global Distribution Center'
   },
   { 
     id: 'ORD-2404', 
     customerName: 'Metro Cargo', 
-    contactNumber: '+1 234 567 8904',
     product: 'Kerosene', 
     quantity: '8000 L', 
-    status: 'WAITING_FOR_APPROVAL', 
+    status: 'ORDER_PENDING', 
     type: 'MANUAL',
-    date: '2026-04-21',
+    date: '2026-04-24',
     pickupLocation: 'Terminal C, Bay 5',
-    deliveryLocation: 'Metro Hub 4',
-    deliveryDeadline: '2026-04-23T15:00'
+    deliveryLocation: 'Metro Hub 4'
   },
   { 
     id: 'ORD-2405', 
     customerName: 'Quick Ship Ltd', 
-    contactNumber: '+1 234 567 8905',
     product: 'Diesel', 
     quantity: '18000 L', 
     status: 'REJECTED', 
     type: 'SYSTEM',
-    date: '2026-04-23',
+    date: '2026-04-24',
     pickupLocation: 'Terminal A, Bay 1',
     deliveryLocation: 'Quick Ship Warehouse',
     deliveryDeadline: '2026-04-25T14:00',
@@ -89,7 +124,7 @@ const initialOrders: Order[] = [
     customerName: 'Global Logistics', 
     product: 'Diesel', 
     quantity: '15000 L', 
-    status: 'AT_GATE', 
+    status: 'YET_TO_COME', 
     type: 'SYSTEM',
     date: '2026-04-24',
     pickupLocation: 'Terminal A, Bay 3',
@@ -114,65 +149,43 @@ const initialOrders: Order[] = [
     loadedQuantity: '20,005 L',
     loadingManagerName: 'Mike Johnson'
   },
-  { 
-    id: 'ORD-2406', 
-    customerName: 'Global Logistics', 
-    contactNumber: '+1 234 567 8906',
-    product: 'Diesel', 
-    quantity: '15000 L', 
-    status: 'AT_GATE', 
-    type: 'SYSTEM',
-    date: '2026-04-24',
-    pickupLocation: 'Terminal A, Bay 3',
-    deliveryLocation: 'Main Depot',
-    deliveryDeadline: '2026-04-26T12:00',
-    assignedTransporterId: 'T-101',
-    assignedTransporterName: 'Global Logistics Solutions'
-  }
 ];
 
-const statusConfig: Record<OrderStatus, { label: string; color: string; icon: any }> = {
-  WAITING_FOR_APPROVAL: { label: 'Order Pending', color: 'bg-amber-50 text-amber-600 border-amber-100', icon: Clock },
-  TRANSPORTER_ASSIGNED: { label: 'Waiting for Approval', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: UserPlus },
-  REJECTED: { label: 'Rejected', color: 'bg-red-50 text-red-600 border-red-100', icon: XCircle },
-  ACCEPTED: { label: 'Accepted', color: 'bg-indigo-50 text-indigo-600 border-indigo-100', icon: CheckCircle2 },
-  AT_GATE: { label: 'At Gate', color: 'bg-orange-50 text-orange-600 border-orange-100', icon: Truck },
-  LOADING: { label: 'Loading', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: Package },
-  LOADED: { label: 'Loaded', color: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: CheckCircle2 },
-  IN_TRANSIT: { label: 'In Transit', color: 'bg-violet-50 text-violet-600 border-violet-100', icon: Truck },
-  COMPLETED: { label: 'Completed', color: 'bg-green-50 text-green-600 border-green-100', icon: ShieldCheck },
-};
+interface Transporter {
+  id: string;
+  name: string;
+}
+
+const mockTransporters: Transporter[] = [
+  { id: 'T-101', name: 'Global Logistics Solutions' },
+  { id: 'T-102', name: 'Express Freight Co.' },
+  { id: 'T-103', name: 'Swift Transport NV' },
+];
 
 export function OrdersList() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>(initialOrders);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isSchedulePanelOpen, setIsSchedulePanelOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'SCHEDULE' | 'DOCUMENTS'>('SCHEDULE');
+  const [activeTab, setActiveTab] = useState<'details' | 'schedule' | 'documents'>('details');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const isAdmin = user?.role === 'ADMIN';
   const isTransporter = user?.role === 'TRANSPORTER';
   const isLoadingManager = user?.role === 'LOADING_MANAGER';
-  const isTerminalManager = user?.role === 'TERMINAL_MANAGER';
+  const isTerminalManager = user?.role === 'TERMINAL_MANAGER' || (user?.role as any) === 'CHECKPOST_MANAGER';
 
-  // Filter orders based on role
   const displayedOrders = orders.filter(order => {
     if (isAdmin || isLoadingManager || isTerminalManager) return true;
-    if (isTransporter) return order.assignedTransporterId === 'T-101'; // Mocking current transporter ID
+    if (isTransporter) return order.assignedTransporterId === 'T-101';
     return false;
   });
-
-  const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-  };
 
   const handleAssign = (transporter: Transporter) => {
     if (selectedOrder) {
       setOrders(prev => prev.map(o => o.id === selectedOrder.id ? { 
         ...o, 
-        status: 'TRANSPORTER_ASSIGNED',
+        status: 'WAITING_FOR_APPROVAL',
         assignedTransporterId: transporter.id,
         assignedTransporterName: transporter.name
       } : o));
@@ -206,8 +219,39 @@ export function OrdersList() {
     }
   };
 
+  const openOrderDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setActiveTab('details');
+  };
+
+  if (selectedOrder && !isAssignModalOpen && !isSchedulePanelOpen) {
+    return (
+      <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+        <div className="mb-6 flex items-center gap-4">
+           <button 
+             onClick={() => setSelectedOrder(null)}
+             className="p-3 bg-white border border-slate-100 rounded-2xl hover:bg-slate-50 text-slate-500 transition-all group"
+           >
+             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+           </button>
+           <div>
+             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Order Details</h2>
+             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">ID: {selectedOrder.id}</p>
+           </div>
+        </div>
+        <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+          <OrderDetail 
+            order={selectedOrder} 
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Orders Management</h2>
@@ -215,11 +259,10 @@ export function OrdersList() {
         </div>
         {isAdmin && (
           <button
-            onClick={() => setIsPanelOpen(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-primary text-white text-sm font-bold rounded-2xl shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            className="flex items-center gap-2 px-6 py-3 bg-[#0047AB] text-white text-sm font-bold rounded-2xl shadow-lg shadow-blue-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all"
           >
-            <Plus className="w-5 h-5" />
-            Create Manual Order
+            <RotateCw className="w-5 h-5" />
+            Sync Orders
           </button>
         )}
       </div>
@@ -238,7 +281,7 @@ export function OrdersList() {
           <select className="px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-xs font-bold text-slate-600 appearance-none">
             <option>All Status</option>
             {Object.entries(statusConfig).map(([key, config]) => (
-              <option key={key} value={key}>{config.label}</option>
+              <option key={key} value={key as OrderStatus}>{config.label}</option>
             ))}
           </select>
           <select className="px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-xs font-bold text-slate-600 appearance-none">
@@ -273,120 +316,111 @@ export function OrdersList() {
                 const StatusIcon = config.icon;
                 
                 return (
-                  <tr key={order.id} className="group hover:bg-slate-50/50 transition-colors">
-                    <td className="px-8 py-6">
-                      <div className="flex flex-col gap-1">
-                        <Link to={`/orders/${order.id}`} className="text-sm font-black text-slate-900 hover:text-primary transition-colors">
-                          {order.id}
-                        </Link>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-500">{order.customerName}</span>
-                          <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${
-                            order.type === 'SYSTEM' ? 'bg-indigo-50 text-indigo-500' : 'bg-orange-50 text-orange-500'
+                  <tr 
+                    key={order.id} 
+                    onClick={() => openOrderDetails(order)}
+                    className="group hover:bg-slate-50/50 transition-all cursor-pointer"
+                  >
+                    <td className="px-8 py-4">
+                      <div>
+                        <div className="text-sm font-black text-slate-900">{order.id}</div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[11px] font-bold text-slate-500">{order.customerName}</span>
+                          <span className={`px-1.5 py-0.5 rounded text-[8px] font-black tracking-widest ${
+                            order.type === 'SYSTEM' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'
                           }`}>
                             {order.type}
                           </span>
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                           <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-                           <span className="text-xs font-bold text-slate-700">{order.pickupLocation}</span>
+                    <td className="px-8 py-4">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                          {order.pickupLocation}
                         </div>
-                        <div className="flex items-center gap-2">
-                           <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                           <span className="text-xs font-bold text-slate-500">{order.deliveryLocation}</span>
+                        <div className="flex items-center gap-2 text-xs font-black text-[#0047AB]">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#0047AB]" />
+                          {order.deliveryLocation}
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-black text-slate-900">{order.quantity}</span>
-                        <span className="text-[10px] font-bold text-slate-400 italic">{order.product}</span>
-                      </div>
+                    <td className="px-8 py-4">
+                      <div className="text-sm font-black text-slate-900">{order.quantity}</div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">{order.product}</div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-8 py-4">
                       {order.assignedTransporterName ? (
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xs font-bold text-slate-700">{order.assignedTransporterName}</span>
-                          <span className="text-[10px] text-slate-400 font-medium">{order.assignedTransporterId}</span>
-                        </div>
-                      ) : (
-                        <span className="text-[10px] font-bold text-slate-300 italic">Unassigned</span>
-                      )}
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border ${config.color}`}>
-                        <StatusIcon className="w-3.5 h-3.5" />
-                        {config.label}
-                      </div>
-                      {order.status === 'REJECTED' && (
-                        <div className="mt-2 space-y-1">
-                          <div className="flex items-center gap-1.5 text-[9px] font-black text-red-500 uppercase tracking-wider">
-                            <XCircle className="w-3 h-3" />
-                            Rejected by {order.assignedTransporterName || 'Transporter'}
-                          </div>
-                          {order.rejectionReason && (
-                            <div className="flex items-center gap-1.5 text-[9px] font-bold text-red-400 italic ml-4">
-                              "{order.rejectionReason}"
+                        <div>
+                          <div className="text-xs font-black text-slate-900">{order.assignedTransporterName}</div>
+                          {order.truckNumber && (
+                            <div className="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest">
+                              {order.truckNumber}
                             </div>
                           )}
                         </div>
+                      ) : (
+                        <span className="text-[10px] font-bold text-slate-300 italic uppercase tracking-widest">Unassigned</span>
                       )}
                     </td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {isAdmin && (
-                          <>
-                            {(order.status === 'WAITING_FOR_APPROVAL' || order.status === 'REJECTED') && (
-                              <button 
-                                onClick={() => {
-                                  setSelectedOrder(order);
-                                  setIsAssignModalOpen(true);
-                                }}
-                                className="px-3 py-1.5 bg-primary text-white text-[10px] font-black rounded-lg hover:bg-primary/90 transition-all uppercase flex items-center gap-1.5"
-                              >
-                                <UserPlus className="w-3 h-3" />
-                                {order.status === 'REJECTED' ? 'Reassign' : 'Assign'}
-                              </button>
-                            )}
-                          </>
+                    <td className="px-8 py-4">
+                      <div className="space-y-1.5">
+                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${config.color}`}>
+                          <StatusIcon className="w-3 h-3" />
+                          {config.label}
+                        </div>
+                        {order.status === 'REJECTED' && (
+                          <div className="flex flex-col gap-0.5">
+                             <div className="flex items-center gap-1.5 text-red-500">
+                                <XCircle className="w-3.5 h-3.5" />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Rejected</span>
+                             </div>
+                             <p className="text-[10px] font-bold text-slate-400 italic leading-tight ml-5 line-clamp-1">"{order.rejectionReason}"</p>
+                          </div>
                         )}
-                        
-                        {isTransporter && order.status === 'TRANSPORTER_ASSIGNED' && (
-                          <>
-                            <button 
-                              onClick={() => {
-                                setSelectedOrder(order);
-                                setIsSchedulePanelOpen(true);
-                              }}
-                              className="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg hover:bg-indigo-100 transition-colors uppercase"
-                            >
-                              Accept
-                            </button>
-                            <button 
-                              onClick={() => handleReject(order.id)}
-                              className="px-3 py-1.5 bg-red-50 text-red-600 text-[10px] font-black rounded-lg hover:bg-red-100 transition-colors uppercase"
-                            >
-                              Reject
-                            </button>
-                          </>
-                        )}
-
-                        {isLoadingManager && order.status === 'AT_GATE' && (
-                          <Link 
-                            to="/loading" 
-                            className="px-3 py-1.5 bg-blue-600 text-white text-[10px] font-black rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-900/20 transition-all uppercase flex items-center gap-1.5"
+                      </div>
+                    </td>
+                    <td className="px-8 py-4 text-right">
+                      <div className="flex items-center justify-end gap-3" onClick={(e) => e.stopPropagation()}>
+                        {isAdmin && order.status === 'ORDER_PENDING' && (
+                          <button
+                            onClick={() => { setSelectedOrder(order); setIsAssignModalOpen(true); }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0047AB] text-white text-[9px] font-black rounded-lg uppercase tracking-widest shadow-md shadow-blue-900/10 hover:shadow-lg transition-all"
                           >
-                            <Container className="w-3.5 h-3.5" />
-                            Start Loading
-                          </Link>
+                            <UserPlus className="w-3 h-3" />
+                            Assign
+                          </button>
                         )}
-
-                        <button className="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-xl transition-all">
-                           <MoreHorizontal className="w-4 h-4" />
+                        {isAdmin && order.status === 'REJECTED' && (
+                          <button
+                            onClick={() => { setSelectedOrder(order); setIsAssignModalOpen(true); }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0047AB] text-white text-[9px] font-black rounded-lg uppercase tracking-widest shadow-md shadow-blue-900/10 hover:shadow-lg transition-all"
+                          >
+                            <UserPlus className="w-3 h-3" />
+                            Reassign
+                          </button>
+                        )}
+                        {isTransporter && order.status === 'WAITING_FOR_APPROVAL' && (
+                          <div className="flex items-center gap-2">
+                             <button
+                               onClick={() => { setSelectedOrder(order); setIsSchedulePanelOpen(true); }}
+                               className="px-3 py-1.5 bg-green-500 text-white text-[9px] font-black rounded-lg uppercase tracking-widest shadow-md shadow-green-900/10 hover:shadow-lg transition-all"
+                             >
+                               Approve
+                             </button>
+                             <button
+                               onClick={() => handleReject(order.id)}
+                               className="px-3 py-1.5 bg-white border border-red-100 text-red-500 text-[9px] font-black rounded-lg uppercase tracking-widest hover:bg-red-50 transition-all"
+                             >
+                               Reject
+                             </button>
+                          </div>
+                        )}
+                        <button 
+                          className="p-2 text-slate-400 hover:text-primary transition-colors"
+                        >
+                          <MoreHorizontal className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
@@ -398,77 +432,110 @@ export function OrdersList() {
         </div>
       </div>
 
-      {/* Side Panel for New Order */}
-      <SidePanel
-        isOpen={isPanelOpen}
-        onClose={() => setIsPanelOpen(false)}
-        title="Create New Order"
-      >
-        <OrderForm onClose={() => setIsPanelOpen(false)} hideTitle />
-      </SidePanel>
-
-      {/* Transporter Assignment Modal */}
-      <OrderAssignModal
-        isOpen={isAssignModalOpen}
-        onClose={() => {
-          setIsAssignModalOpen(false);
-          setSelectedOrder(null);
-        }}
-        onAssign={handleAssign}
-        currentTransporterId={selectedOrder?.assignedTransporterId}
-      />
-
-      <SidePanel
-        isOpen={isSchedulePanelOpen}
-        onClose={() => {
-          setIsSchedulePanelOpen(false);
-          setSelectedOrder(null);
-          setActiveTab('SCHEDULE');
-        }}
-        title={activeTab === 'SCHEDULE' ? 'Schedule Pickup Information' : 'Associated Documents'}
-      >
-        <div className="flex flex-col h-full">
-          {/* Tab Headers */}
-          <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl mb-6">
-            <button 
-              onClick={() => setActiveTab('SCHEDULE')}
-              className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${
-                activeTab === 'SCHEDULE' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              Pickup Schedule
-            </button>
-            <button 
-              onClick={() => setActiveTab('DOCUMENTS')}
-              className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${
-                activeTab === 'DOCUMENTS' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
-              }`}
-            >
-              Documents
-            </button>
-          </div>
-
-          {/* Tab Content */}
-          <div className="flex-1 overflow-y-auto pr-1">
-            {selectedOrder && (
-              <>
-                {activeTab === 'SCHEDULE' ? (
-                  <OrderScheduleForm 
-                    order={selectedOrder} 
-                    onSubmit={handleScheduleSubmit}
-                    onCancel={() => {
-                      setIsSchedulePanelOpen(false);
-                      setSelectedOrder(null);
-                    }}
-                  />
-                ) : (
-                  <OrderDocumentsTab orderId={selectedOrder.id} />
-                )}
-              </>
-            )}
+      {/* Assign Transporter Modal */}
+      {isAssignModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[40px] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">Assign Transporter</h3>
+              <button onClick={() => setIsAssignModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-8 space-y-4">
+              {mockTransporters.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => handleAssign(t)}
+                  className="w-full flex items-center justify-between p-6 bg-slate-50 border border-slate-100 rounded-3xl hover:border-primary hover:bg-white transition-all group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                      <Truck className="w-6 h-6" />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-sm font-black text-slate-900">{t.name}</div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.id}</div>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-primary transition-all" />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </SidePanel>
+      )}
+
+      {/* Transporter Approval / Schedule Modal (keeping as modal for focused interaction) */}
+      {isSchedulePanelOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[40px] w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">Approve & Schedule</h3>
+              <button onClick={() => setIsSchedulePanelOpen(false)} className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-8 space-y-8">
+               <div className="bg-blue-50/50 p-6 rounded-3xl border border-blue-100 flex items-start gap-4">
+                  <Info className="w-5 h-5 text-blue-500 shrink-0 mt-1" />
+                  <p className="text-xs font-bold text-blue-700 leading-relaxed italic">
+                    Provide truck and driver details to generate the gate pass.
+                  </p>
+               </div>
+
+               <div className="space-y-6">
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Truck Number Plate</label>
+                     <input 
+                        type="text" 
+                        placeholder="E.G. BE-12-ABC-34"
+                        className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary transition-all text-sm font-black"
+                        id="sched-truck"
+                     />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Driver Name</label>
+                     <input 
+                        type="text" 
+                        placeholder="ENTER FULL NAME"
+                        className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary transition-all text-sm font-black"
+                        id="sched-driver"
+                     />
+                  </div>
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Pickup Time Slot</label>
+                     <input 
+                        type="datetime-local" 
+                        className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary transition-all text-sm font-black"
+                        id="sched-time"
+                     />
+                  </div>
+               </div>
+
+               <button 
+                  onClick={() => {
+                    const truck = (document.getElementById('sched-truck') as HTMLInputElement).value;
+                    const driver = (document.getElementById('sched-driver') as HTMLInputElement).value;
+                    const time = (document.getElementById('sched-time') as HTMLInputElement).value;
+                    if (truck && driver) {
+                       handleScheduleSubmit({
+                          truckNumber: truck,
+                          driverName: driver,
+                          pickupTimeSlot: time,
+                          pickupQuantity: selectedOrder?.quantity || '0 L'
+                       });
+                    }
+                  }}
+                  className="w-full py-5 bg-[#0047AB] text-white text-xs font-black rounded-3xl shadow-xl shadow-blue-900/10 hover:-translate-y-1 transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3"
+               >
+                  Confirm & Approve Order
+                  <ArrowRight className="w-5 h-5" />
+               </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

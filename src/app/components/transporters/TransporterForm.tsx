@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { 
-  Building2, Mail, Phone, MapPin, 
+import {
+  Building2, Mail, Phone, MapPin,
   Truck, Star, AlertCircle, Save, X
 } from 'lucide-react';
 
@@ -139,23 +139,22 @@ export function TransporterForm({ initialData, onClose }: TransporterFormProps) 
 
         {/* Status */}
         <div className="space-y-4 pt-4">
-           <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Operational Status</h4>
-           <div className="flex gap-3">
-              {['ACTIVE', 'INACTIVE'].map((s) => (
-                 <button
-                    key={s}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, status: s })}
-                    className={`flex-1 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                       formData.status === s 
-                       ? 'bg-slate-900 border-slate-900 text-white shadow-lg' 
-                       : 'bg-white border-slate-100 text-slate-400 hover:bg-slate-50'
-                    }`}
-                 >
-                    {s}
-                 </button>
-              ))}
-           </div>
+          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Operational Status</h4>
+          <div className="flex gap-3">
+            {['ACTIVE', 'INACTIVE'].map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setFormData({ ...formData, status: s })}
+                className={`flex-1 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all ${formData.status === s
+                  ? 'bg-slate-900 border-slate-900 text-white shadow-lg'
+                  : 'bg-white border-slate-100 text-slate-400 hover:bg-slate-50'
+                  }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

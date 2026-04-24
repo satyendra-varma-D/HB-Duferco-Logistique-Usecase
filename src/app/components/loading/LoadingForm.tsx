@@ -176,7 +176,7 @@ export function LoadingForm() {
                     <div>
                        <p className="text-xs font-black text-blue-900">Automatic Sync</p>
                        <p className="text-[11px] font-medium text-blue-700 mt-1">
-                          The final quantity will be shared with the Terminal Manager for exit clearance. Ensure the meter reading is accurate.
+                          The final quantity will be shared with the Checkpost Manager for exit clearance. Ensure the meter reading is accurate.
                        </p>
                     </div>
                  </div>
@@ -216,4 +216,3 @@ export function LoadingForm() {
     </div>
   );
 }
-

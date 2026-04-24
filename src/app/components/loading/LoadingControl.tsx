@@ -90,7 +90,7 @@ export function LoadingControl() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
+    <div className="w-full space-y-8 animate-in fade-in duration-500 pb-12">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Loading Station Control</h2>
@@ -127,6 +127,8 @@ export function LoadingControl() {
                              value={passId}
                              onChange={(e) => setPassId(e.target.value.toUpperCase())}
                              placeholder="SCAN OR ENTER PASS ID"
+                             autoComplete="off"
+                             spellCheck={false}
                              className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 ring-primary/5 focus:bg-white focus:border-primary/20 transition-all text-sm font-black tracking-widest"
                           />
                        </div>
@@ -148,6 +150,7 @@ export function LoadingControl() {
                              value={pin}
                              onChange={(e) => setPin(e.target.value)}
                              placeholder="4-DIGIT PIN"
+                             autoComplete="new-password"
                              className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 ring-primary/5 focus:bg-white focus:border-primary/20 transition-all text-sm font-black tracking-[0.5em] placeholder:tracking-normal"
                           />
                        </div>

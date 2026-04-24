@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth, UserRole } from '../../contexts/AuthContext';
-import { Lock, Mail, ChevronRight, Loader2, Shield, Truck, Terminal, Container } from 'lucide-react';
+import { Lock, Mail, ChevronRight, Loader2, Shield, Truck, Terminal, Container, RotateCw } from 'lucide-react';
 import loginHero from '../../../login-hero.png';
 
 export function LoginPage() {
@@ -15,7 +15,7 @@ export function LoginPage() {
   const roles = [
     { id: 'ADMIN' as UserRole, label: 'Admin', icon: Shield, desc: 'Full System Control', email: 'admin@company.com' },
     { id: 'TRANSPORTER' as UserRole, label: 'Transporter', icon: Truck, desc: 'Manage Deliveries', email: 'transporter@company.com' },
-    { id: 'TERMINAL_MANAGER' as UserRole, label: 'Terminal Manager', icon: Terminal, desc: 'Terminal Operations', email: 'terminal@company.com' },
+    { id: 'TERMINAL_MANAGER' as UserRole, label: 'Checkpost Manager', icon: Terminal, desc: 'Terminal Operations', email: 'terminal@company.com' },
     { id: 'LOADING_MANAGER' as UserRole, label: 'Loading Manager', icon: Container, desc: 'Loading Supervision', email: 'loading@company.com' },
   ];
 
@@ -75,7 +75,7 @@ export function LoginPage() {
 
       {/* Right Side: Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-20 bg-[#F9FBFC]">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-xl">
           <div className="mb-10 text-center lg:text-left">
             <div className="flex flex-col items-center lg:items-start mb-8">
               <div className="w-20 h-20 bg-[#0047AB] rounded-tr-[30px] rounded-bl-[30px] flex flex-col items-center justify-center mb-3 shadow-xl border border-blue-100/20">
@@ -169,6 +169,28 @@ export function LoginPage() {
               )}
             </button>
           </form>
+
+          {/* Compact System Info Cards */}
+          <div className="mt-8 grid grid-cols-2 gap-4">
+             <div className="p-4 bg-white border border-slate-100 rounded-2xl flex items-center gap-3 shadow-sm hover:shadow-md transition-all group">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
+                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                </div>
+                <div>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">System Status</p>
+                   <p className="text-xs font-black text-slate-900">Operational</p>
+                </div>
+             </div>
+             <div className="p-4 bg-white border border-slate-100 rounded-2xl flex items-center gap-3 shadow-sm hover:shadow-md transition-all">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center">
+                   <RotateCw className="w-4 h-4" />
+                </div>
+                <div>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Last Sync</p>
+                   <p className="text-xs font-black text-slate-900">2m ago</p>
+                </div>
+             </div>
+          </div>
 
           <div className="mt-12 text-center">
             <p className="text-slate-400 text-xs font-medium">

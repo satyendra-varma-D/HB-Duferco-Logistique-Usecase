@@ -37,9 +37,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 800));
     
+    const name = role === 'TERMINAL_MANAGER' 
+      ? 'Checkpost Manager' 
+      : role.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
+
     const newUser: User = {
       id: Math.random().toString(36).substring(7),
-      name: role.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' '),
+      name: name,
       email: email,
       role: role,
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${role}`,

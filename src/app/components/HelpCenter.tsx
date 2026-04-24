@@ -15,7 +15,7 @@ const contactRoles = [
     color: 'bg-blue-50 text-blue-600'
   },
   {
-    role: 'Terminal Manager',
+    role: 'Checkpost Manager',
     name: 'Marc Dubois',
     email: 'terminal.manager@duferco-logistics.com',
     phone: '+32 2 555 0122',
@@ -35,8 +35,8 @@ const contactRoles = [
 ];
 
 const faqs = [
-  { q: 'How do I reset my terminal access PIN?', a: 'Contact the Terminal Manager directly or use the "Forgot PIN" link on the Gate Control login screen.' },
-  { q: 'What should I do if the QR scanner fails?', a: 'Drivers can manually enter the Order ID and PIN at the gate console. Terminal Managers can also verify via the Gate Control dashboard.' },
+  { q: 'How do I reset my terminal access PIN?', a: 'Contact the Checkpost Manager directly or use the "Forgot PIN" link on the Gate Control login screen.' },
+  { q: 'What should I do if the QR scanner fails?', a: 'Drivers can manually enter the Order ID and PIN at the gate console. Checkpost Managers can also verify via the Gate Control dashboard.' },
   { q: 'How can I update my truck fleet size?', a: 'Admins can edit transporter profiles in the Transporters module. Navigate to System > Transporters to make changes.' }
 ];
 

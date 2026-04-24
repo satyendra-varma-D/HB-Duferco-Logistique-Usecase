@@ -7,7 +7,7 @@ import {
 
 export function Settings() {
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
+    <div className="w-full space-y-8 animate-in fade-in duration-500 pb-12">
       <div className="flex items-center justify-between">
         <div>
            <h2 className="text-3xl font-black text-slate-900 tracking-tight">System Settings</h2>
@@ -21,7 +21,7 @@ export function Settings() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
          {/* Navigation Sidebar */}
-         <div className="lg:col-span-3 space-y-2">
+         <div className="lg:col-span-2 space-y-2">
             {[
                { label: 'General', icon: Globe, active: true },
                { label: 'Security', icon: Lock, active: false },
@@ -45,7 +45,7 @@ export function Settings() {
          </div>
 
          {/* Content Area */}
-         <div className="lg:col-span-9 space-y-8">
+         <div className="lg:col-span-10 space-y-8">
             {/* General Section */}
             <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm space-y-10">
                <div className="flex items-center gap-4 border-b border-slate-50 pb-8">

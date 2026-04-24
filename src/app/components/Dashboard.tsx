@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-type TripStatus = 'WAITING_APPROVAL' | 'AT_GATE' | 'LOADING' | 'READY_FOR_EXIT' | 'DELAYED';
+type TripStatus = 'YET_TO_COME' | 'IN_TERMINAL' | 'LOADED' | 'EXITED' | 'DELAYED';
 
 interface Trip {
   id: string;
@@ -26,12 +26,12 @@ interface Trip {
 }
 
 const initialTrips: Trip[] = [
-  { id: 'ORD-2401', truck: 'TN-45-AX-1234', driver: 'Robert Fox', transporter: 'Global Logistics', status: 'LOADING', product: 'Diesel', plannedQty: '15,000 L', actualQty: '12,400 L', timeInQueue: '45m', bay: 'Bay 3', operator: 'Mike Johnson' },
-  { id: 'ORD-2402', truck: 'BE-12-G-9988', driver: 'Arlene McCoy', transporter: 'ABC Transport', status: 'AT_GATE', product: 'Petrol', plannedQty: '12,000 L', timeInQueue: '12m' },
-  { id: 'ORD-2403', truck: 'FR-99-PL-5566', driver: 'Cody Fisher', transporter: 'Nexus Energy', status: 'WAITING_APPROVAL', product: 'Diesel', plannedQty: '20,000 L', timeInQueue: '1h 20m' },
-  { id: 'ORD-2406', truck: 'UK-22-KJ-7744', driver: 'Jenny Wilson', transporter: 'Global Logistics', status: 'READY_FOR_EXIT', product: 'Aviation Fuel', plannedQty: '18,500 L', actualQty: '18,500 L', timeInQueue: '2h 15m', operator: 'Sarah Chen' },
+  { id: 'ORD-2401', truck: 'TN-45-AX-1234', driver: 'Robert Fox', transporter: 'Global Logistics', status: 'IN_TERMINAL', product: 'Diesel', plannedQty: '15,000 L', actualQty: '12,400 L', timeInQueue: '45m', bay: 'Bay 3', operator: 'Mike Johnson' },
+  { id: 'ORD-2402', truck: 'BE-12-G-9988', driver: 'Arlene McCoy', transporter: 'ABC Transport', status: 'YET_TO_COME', product: 'Petrol', plannedQty: '12,000 L', timeInQueue: '12m' },
+  { id: 'ORD-2403', truck: 'FR-99-PL-5566', driver: 'Cody Fisher', transporter: 'Nexus Energy', status: 'YET_TO_COME', product: 'Diesel', plannedQty: '20,000 L', timeInQueue: '1h 20m' },
+  { id: 'ORD-2406', truck: 'UK-22-KJ-7744', driver: 'Jenny Wilson', transporter: 'Global Logistics', status: 'LOADED', product: 'Aviation Fuel', plannedQty: '18,500 L', actualQty: '18,500 L', timeInQueue: '2h 15m', operator: 'Sarah Chen' },
   { id: 'ORD-2409', truck: 'DE-88-MN-1122', driver: 'Guy Hawkins', transporter: 'Express Freight', status: 'DELAYED', product: 'Diesel', plannedQty: '5,000 L', timeInQueue: '3h 10m' },
-  { id: 'ORD-2412', truck: 'NL-44-BB-2233', driver: 'Leslie Alexander', transporter: 'Swift Transport', status: 'WAITING_APPROVAL' as any, product: 'Petrol', plannedQty: '15,000 L', timeInQueue: '5m' },
+  { id: 'ORD-2412', truck: 'NL-44-BB-2233', driver: 'Leslie Alexander', transporter: 'Swift Transport', status: 'IN_TERMINAL', product: 'Petrol', plannedQty: '15,000 L', timeInQueue: '5m' },
 ];
 
 const alerts = [
@@ -49,12 +49,21 @@ export function Dashboard() {
 
   const getStatusBadge = (status: TripStatus) => {
     switch (status) {
-      case 'LOADING': return 'bg-blue-50 text-blue-600 border-blue-100';
-      case 'AT_GATE': return 'bg-amber-50 text-amber-600 border-amber-100';
-      case 'READY_FOR_EXIT': return 'bg-green-50 text-green-600 border-green-100';
+      case 'IN_TERMINAL': return 'bg-blue-50 text-blue-600 border-blue-100';
+      case 'YET_TO_COME': return 'bg-amber-50 text-amber-600 border-amber-100';
+      case 'LOADED': return 'bg-green-50 text-green-600 border-green-100';
       case 'DELAYED': return 'bg-red-50 text-red-600 border-red-100';
+      case 'EXITED': return 'bg-slate-900 text-white border-slate-900';
       default: return 'bg-slate-50 text-slate-500 border-slate-100';
     }
+  };
+
+  const getStatusLabel = (status: string) => {
+     if (status === 'YET_TO_COME') return 'Yet to Come';
+     if (status === 'IN_TERMINAL') return 'In Terminal';
+     if (status === 'LOADED') return 'Loaded';
+     if (status === 'EXITED') return 'Exited';
+     return status;
   };
 
   return (
@@ -76,10 +85,6 @@ export function Dashboard() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-           <button className="flex items-center gap-2 px-5 py-2.5 bg-[#0047AB] text-white text-[10px] font-black rounded-xl uppercase tracking-widest hover:shadow-lg hover:shadow-blue-900/10 transition-all">
-              <Plus className="w-4 h-4" />
-              Quick Order
-           </button>
            <div className="h-8 w-px bg-slate-100 mx-1" />
            <button className="relative p-2.5 bg-slate-50 rounded-xl text-slate-400 hover:text-primary transition-all">
               <Bell className="w-4 h-4" />
@@ -116,7 +121,7 @@ export function Dashboard() {
                 <div className="flex items-center justify-between mt-2">
                    <div className="text-[10px] font-bold text-slate-400">{trip.driver}</div>
                    <div className={`px-2 py-0.5 rounded text-[8px] font-black border uppercase tracking-widest ${getStatusBadge(trip.status)}`}>
-                     {trip.status.replace('_', ' ')}
+                     {getStatusLabel(trip.status)}
                    </div>
                 </div>
               </button>
@@ -128,9 +133,9 @@ export function Dashboard() {
         <div className="flex-1 bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
            {/* Discrete Lifecycle Tracker */}
            <div className="px-10 py-6 border-b border-slate-50 flex items-center justify-center gap-2 bg-white">
-              {['REGISTERED', 'AT GATE', 'LOADING', 'READY FOR EXIT'].map((step, idx) => {
-                const isCurrent = step === selectedTrip.status.replace('_', ' ');
-                const isPast = ['REGISTERED', 'AT GATE', 'LOADING', 'READY FOR EXIT'].indexOf(selectedTrip.status.replace('_', ' ')) > idx;
+              {['Yet to Come', 'In Terminal', 'Loaded', 'Exited'].map((step, idx) => {
+                const isCurrent = step === getStatusLabel(selectedTrip.status);
+                const isPast = ['Yet to Come', 'In Terminal', 'Loaded', 'Exited'].indexOf(getStatusLabel(selectedTrip.status)) > idx;
                 
                 return (
                   <div key={step} className="flex items-center">
@@ -170,7 +175,7 @@ export function Dashboard() {
 
               {/* Functional Detail Panels */}
               <div className="max-w-4xl">
-                 {selectedTrip.status === 'AT_GATE' && (
+                 {selectedTrip.status === 'YET_TO_COME' && (
                     <div className="space-y-8 animate-in fade-in duration-500">
                        <div className="grid grid-cols-2 gap-6">
                           <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
@@ -210,14 +215,14 @@ export function Dashboard() {
                     </div>
                  )}
 
-                 {selectedTrip.status === 'LOADING' && (
+                 {selectedTrip.status === 'IN_TERMINAL' && (
                     <div className="space-y-8 animate-in fade-in duration-500">
                        <div className="bg-slate-50/50 p-8 rounded-[32px] border border-slate-100">
                           <div className="grid grid-cols-2 gap-10">
                              <div>
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Flow Progress</p>
                                 <div className="flex items-end gap-2 mb-4">
-                                   <div className="text-4xl font-black text-slate-900">{selectedTrip.actualQty?.split(' ')[0]}</div>
+                                   <div className="text-4xl font-black text-slate-900">{selectedTrip.actualQty ? selectedTrip.actualQty.split(' ')[0] : '0'}</div>
                                    <div className="text-lg font-bold text-slate-300 mb-1">/ {selectedTrip.plannedQty}</div>
                                 </div>
                                 <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden">
@@ -231,7 +236,7 @@ export function Dashboard() {
                                    </div>
                                    <div>
                                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Bay</p>
-                                      <p className="text-sm font-black text-slate-900">{selectedTrip.bay}</p>
+                                      <p className="text-sm font-black text-slate-900">{selectedTrip.bay || 'Pending Assignment'}</p>
                                    </div>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -240,7 +245,7 @@ export function Dashboard() {
                                    </div>
                                    <div>
                                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Operator</p>
-                                      <p className="text-sm font-black text-slate-900">{selectedTrip.operator}</p>
+                                      <p className="text-sm font-black text-slate-900">{selectedTrip.operator || 'Waiting...'}</p>
                                    </div>
                                 </div>
                              </div>
@@ -256,12 +261,12 @@ export function Dashboard() {
                        </div>
 
                        <button className="w-full py-5 bg-green-600 text-white text-xs font-black rounded-2xl shadow-xl shadow-green-900/10 hover:-translate-y-0.5 transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3">
-                          <CheckCircle2 className="w-5 h-5" /> Confirm Load & Exit Bay
+                          <CheckCircle2 className="w-5 h-5" /> Confirm Load & Release to Exit
                        </button>
                     </div>
                  )}
 
-                 {selectedTrip.status === 'READY_FOR_EXIT' && (
+                 {selectedTrip.status === 'LOADED' && (
                     <div className="space-y-8 animate-in fade-in duration-500">
                        <div className="grid grid-cols-3 gap-4">
                           {[
@@ -279,39 +284,52 @@ export function Dashboard() {
 
                        <div className="bg-slate-50/50 rounded-3xl p-8 space-y-4 border border-slate-100">
                           <div className="flex justify-between">
-                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Net Quantity</span>
+                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Final Loaded Quantity</span>
                              <span className="text-lg font-black text-slate-900">{selectedTrip.actualQty}</span>
                           </div>
                           <div className="h-px bg-slate-100" />
                           <div className="flex justify-between">
-                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Time In Terminal</span>
+                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Dwell Time</span>
                              <span className="text-lg font-black text-slate-900">{selectedTrip.timeInQueue}</span>
                           </div>
                        </div>
 
                        <button className="w-full py-5 bg-[#0047AB] text-white text-xs font-black rounded-2xl shadow-xl shadow-blue-900/10 hover:-translate-y-0.5 transition-all uppercase tracking-[0.2em] flex items-center justify-center gap-3">
-                          <LogOut className="w-5 h-5" /> Final Gate Release
+                          <LogOut className="w-5 h-5" /> Authorize Final Exit
                        </button>
                     </div>
                  )}
 
-                 {selectedTrip.status === 'WAITING_APPROVAL' && (
+                 {selectedTrip.status === 'EXITED' && (
                     <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
-                       <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200 border border-slate-100">
-                          <Clock className="w-8 h-8" />
+                       <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center text-green-500 border border-green-100">
+                          <CheckCircle2 className="w-8 h-8" />
                        </div>
                        <div>
-                          <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest">Pending Verification</h3>
-                          <p className="text-xs font-medium text-slate-400 mt-2 max-w-xs mx-auto">Review schedule and transporter documentation to authorize terminal entry.</p>
+                          <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest">Exited Terminal</h3>
+                          <p className="text-xs font-medium text-slate-400 mt-2 max-w-xs mx-auto">The vehicle has successfully completed its operation and exited the terminal gates.</p>
                        </div>
-                       <button className="px-10 py-4 bg-primary text-white text-[10px] font-black rounded-xl uppercase tracking-widest hover:shadow-lg transition-all">Open Verification Panel</button>
+                       <button className="px-10 py-4 bg-slate-900 text-white text-[10px] font-black rounded-xl uppercase tracking-widest">View Audit Log</button>
+                    </div>
+                 )}
+                 
+                 {selectedTrip.status === 'DELAYED' && (
+                    <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
+                       <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 border border-red-100">
+                          <AlertCircle className="w-8 h-8" />
+                       </div>
+                       <div>
+                          <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest text-red-500">Delayed Operation</h3>
+                          <p className="text-xs font-medium text-slate-400 mt-2 max-w-xs mx-auto">This trip has exceeded the expected dwell time. Immediate operational attention is required.</p>
+                       </div>
+                       <button className="px-10 py-4 bg-red-500 text-white text-[10px] font-black rounded-xl uppercase tracking-widest shadow-lg shadow-red-200">Re-assign Resources</button>
                     </div>
                  )}
               </div>
            </div>
 
            {/* Footer Stats */}
-           <div className="px-10 py-4 border-t border-slate-50 flex items-center justify-between text-slate-300">
+           <div className="px-10 py-4 border-t border-slate-50 bg-slate-50/50 flex items-center justify-between text-slate-300">
               <div className="flex gap-6">
                  <span className="text-[9px] font-black uppercase tracking-widest">Terminal A • Active</span>
                  <span className="text-[9px] font-black uppercase tracking-widest">Shift 1 • 06:00 - 14:00</span>

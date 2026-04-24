@@ -1,18 +1,20 @@
-import { FileText, Download, Eye, ExternalLink, Calendar, User, Clock, CheckCircle2, QrCode, Link2, Copy } from 'lucide-react';
+import { FileText, Download, Eye, ExternalLink, Calendar, User, Clock, CheckCircle2, QrCode, Link2, Copy, AlertCircle, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router';
 
-export function OrderDocumentsTab({ orderId, isVerified }: { orderId: string, isVerified?: boolean }) {
+export function OrderDocumentsTab({ order, isVerified }: { order: any, isVerified?: boolean }) {
   const documents = [
     { id: 'DOC-5001', name: 'Delivery Note', type: 'PDF', date: '2026-04-23 10:30', status: 'GENERATED' },
     { id: 'DOC-5002', name: 'Loading Certificate', type: 'PDF', date: '2026-04-23 09:45', status: 'SIGNED' },
     { id: 'DOC-5003', name: 'Gate Pass', type: 'PDF', date: '2026-04-23 08:15', status: 'GENERATED' },
   ];
 
+  const orderId = order?.id || 'ORD-UNKNOWN';
+  const isExpired = order?.status === 'COMPLETED' || order?.status === 'EXITED';
   const passUrl = `${window.location.origin}/terminal-pass/${orderId}`;
 
   const handleCopy = () => {
+    if (isExpired) return;
     navigator.clipboard.writeText(passUrl);
-    // In a real app we'd use a toast here
   };
 
   return (
@@ -21,10 +23,32 @@ export function OrderDocumentsTab({ orderId, isVerified }: { orderId: string, is
       <div className="space-y-4">
         <div className="flex items-center gap-3 mb-2">
            <Link2 className="w-5 h-5 text-primary" />
-           <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Active Digital Links</h3>
+           <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Digital Access Links</h3>
         </div>
         
-        {isVerified ? (
+        {isExpired ? (
+          <div className="bg-slate-100 border-2 border-slate-200 p-8 rounded-[32px] relative overflow-hidden group shadow-inner">
+            <div className="absolute top-0 right-0 p-6 opacity-5">
+               <AlertCircle className="w-24 h-24" />
+            </div>
+            
+            <div className="relative z-10 flex flex-col items-center text-center">
+               <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center mb-4 text-red-500 shadow-sm border border-red-50">
+                  <Clock className="w-6 h-6" />
+               </div>
+               <h4 className="text-base font-black text-slate-900 tracking-tight">Security Protocol: Link Expired</h4>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed mt-2">
+                  This trip has been completed. Access to the digital terminal pass <br />
+                  and tracking URLs has been <span className="text-red-500">permanently revoked</span>.
+               </p>
+               
+               <div className="mt-6 inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-[9px] font-black text-slate-500 uppercase tracking-widest shadow-sm">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Operational Archive
+               </div>
+            </div>
+          </div>
+        ) : isVerified ? (
           <div className="bg-[#0047AB] p-6 rounded-[32px] text-white relative overflow-hidden group border border-blue-400/20 shadow-xl shadow-blue-900/10">
             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform duration-500">
                <QrCode className="w-24 h-24" />

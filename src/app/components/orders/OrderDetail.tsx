@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router';
 import { 
   ArrowLeft, Edit, Truck, Calendar, User, 
   Package, MapPin, Clock, ShieldCheck, Info,
@@ -8,65 +7,55 @@ import {
 
 import { OrderDocumentsTab } from './OrderDocumentsTab';
 
-export function OrderDetail() {
-  const { id } = useParams();
-  const [activeTab, setActiveTab] = useState<'details' | 'schedule' | 'documents'>('details');
+interface OrderDetailProps {
+  order: any;
+  activeTab: 'SCHEDULE' | 'DOCUMENTS' | 'details' | 'schedule' | 'documents';
+  setActiveTab: (tab: any) => void;
+}
+
+export function OrderDetail({ order, activeTab: initialTab, setActiveTab: setExternalTab }: OrderDetailProps) {
+  const [activeTab, setActiveTab] = useState(initialTab || 'details');
   const [isVerified, setIsVerified] = useState(false);
   const [showPassLink, setShowPassLink] = useState(false);
 
-  // Mock order data (extended with schedule info)
-  const order = {
-    id: id || 'ORD-2401',
-    customerName: 'ABC Logistics',
-    contactNumber: '+1 234 567 8901',
-    product: 'Diesel',
-    quantity: '15,000 L',
-    date: '2026-04-23 08:30',
-    status: 'ACCEPTED',
-    type: 'SYSTEM',
-    pickupLocation: 'Terminal A, Bay 3',
-    deliveryLocation: 'ABC Logistics Depot',
-    deliveryDeadline: '2026-04-25 18:00',
-    specialInstructions: 'Handle with care. Ensure proper sealing. Contact supervisor on arrival.',
-    assignedTransporterName: 'Global Logistics Solutions',
-    assignedTransporterId: 'T-101',
-    // Scheduling Info from Transporter
-    truckNumber: 'TN-45-AX-1234',
-    driverName: 'Robert Fox',
-    pickupTimeSlot: '2026-04-24 10:30 AM',
-    pickupQuantity: '15,000 L'
+  if (!order) return null;
+
+  const getStatusConfig = (status: string) => {
+    const configs: Record<string, { label: string; color: string }> = {
+      ORDER_PENDING: { label: 'ORDER PENDING', color: 'bg-amber-50 text-amber-600 border-amber-100' },
+      WAITING_FOR_APPROVAL: { label: 'WAITING FOR APPROVAL', color: 'bg-blue-50 text-blue-600 border-blue-100' },
+      TRANSPORTER_ASSIGNED: { label: 'ASSIGNED', color: 'bg-indigo-50 text-indigo-600 border-indigo-100' },
+      ACCEPTED: { label: 'TRIP SCHEDULED', color: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
+      YET_TO_COME: { label: 'YET TO COME', color: 'bg-orange-50 text-orange-600 border-orange-100' },
+      IN_TERMINAL: { label: 'IN TERMINAL', color: 'bg-blue-600 text-white border-blue-600' },
+      LOADED: { label: 'LOADED', color: 'bg-green-100 text-green-700 border-green-200' },
+      EXITED: { label: 'EXITED', color: 'bg-slate-900 text-white border-slate-900' },
+      COMPLETED: { label: 'COMPLETED', color: 'bg-green-50 text-green-600 border-green-100' },
+      REJECTED: { label: 'REJECTED', color: 'bg-red-50 text-red-600 border-red-100' },
+    };
+    return configs[status] || { label: status, color: 'bg-slate-50 text-slate-500 border-slate-100' };
   };
+
+  const statusConfig = getStatusConfig(order.status);
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
-        <div className="flex items-center gap-4">
-          <Link to="/orders" className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-colors group">
-            <ArrowLeft className="w-5 h-5 text-slate-500 group-hover:text-primary transition-colors" />
-          </Link>
-          <div>
-            <div className="flex items-center gap-3">
-               <h2 className="text-2xl font-black text-slate-900 tracking-tight">{order.id}</h2>
-               <span className="px-2 py-0.5 bg-green-50 text-green-600 text-[10px] font-black rounded-lg border border-green-100 uppercase tracking-widest">
-                  {order.status}
-               </span>
-            </div>
-            <p className="text-xs font-bold text-slate-400 mt-0.5">Order created on {order.date}</p>
+      <div className="flex items-center justify-between p-8 border-b border-slate-50">
+        <div>
+          <div className="flex items-center gap-3">
+             <h2 className="text-2xl font-black text-slate-900 tracking-tight">{order.id}</h2>
+             <span className={`px-2 py-0.5 text-[10px] font-black rounded-lg border uppercase tracking-widest ${statusConfig.color}`}>
+                {statusConfig.label}
+             </span>
           </div>
+          <p className="text-xs font-bold text-slate-400 mt-0.5">Order created on {order.date || '2026-04-24'}</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="px-5 py-2.5 bg-white border border-slate-100 text-slate-600 text-xs font-black rounded-xl hover:bg-slate-50 transition-all uppercase tracking-wider flex items-center gap-2">
              <FileText className="w-4 h-4" />
              Invoice
           </button>
-          <Link
-            to={`/orders/${id}/edit`}
-            className="px-5 py-2.5 bg-primary text-white text-xs font-black rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all uppercase tracking-wider flex items-center gap-2"
-          >
-            <Edit className="w-4 h-4" />
-            Edit Order
-          </Link>
         </div>
       </div>
 
@@ -307,7 +296,7 @@ export function OrderDetail() {
                             <Info className="w-5 h-5" />
                          </div>
                          <p className="text-xs font-bold text-slate-500 max-w-sm">
-                            This information is synchronized with the **Gate Control** and **Terminal Manager** for seamless arrival verification.
+                            This information is synchronized with the **Gate Control** and **Checkpost Manager** for seamless arrival verification.
                          </p>
                       </div>
                       {!isVerified ? (
@@ -346,7 +335,7 @@ export function OrderDetail() {
             <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm min-h-[500px]">
                <div className="max-w-2xl">
                   <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-8">Trip Documentation</h3>
-                  <OrderDocumentsTab orderId={order.id} isVerified={isVerified} />
+                  <OrderDocumentsTab order={order} isVerified={isVerified} />
                </div>
             </div>
           </div>
