@@ -36,19 +36,19 @@ export function TripForm() {
                 className="w-full px-3 py-2 bg-input border border-border rounded outline-none focus:ring-2 ring-ring"
               >
                 <option value="">Select Order</option>
-                <option value="ORD-2401">ORD-2401 - ABC Logistics - Diesel 15,000L</option>
-                <option value="ORD-2402">ORD-2402 - XYZ Transport - Petrol 12,000L</option>
-                <option value="ORD-2403">ORD-2403 - Global Freight - Diesel 20,000L</option>
+                <option value="ORD-2401">ORD-2401 - ABC Logistics - Steel Coils 25 MT</option>
+                <option value="ORD-2402">ORD-2402 - XYZ Transport - Steel Bars 18 MT</option>
+                <option value="ORD-2403">ORD-2403 - Global Freight - Steel Plates 30 MT</option>
               </select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm mb-2">Quantity (Liters) *</label>
+                <label className="block text-sm mb-2">Quantity (MT) *</label>
                 <input
                   type="number"
                   required
-                  defaultValue={isEdit ? '5000' : ''}
+                  defaultValue={isEdit ? '25' : ''}
                   className="w-full px-3 py-2 bg-input border border-border rounded outline-none focus:ring-2 ring-ring"
                 />
               </div>

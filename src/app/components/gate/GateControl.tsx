@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { 
   ScanLine, LogIn, LogOut, ShieldCheck, 
   Truck, User, Package, Clock, MapPin, 
@@ -6,54 +7,81 @@ import {
   ExternalLink, UserCheck, ArrowLeft, MoreHorizontal,
   ChevronRight, Search, Filter, Download,
   MoreVertical, ChevronDown, CheckSquare, Plus,
-  FileCheck, Shield, ClipboardCheck
+  FileCheck, Shield, ClipboardCheck, Camera
 } from 'lucide-react';
 
 type Mode = 'checkin' | 'checkout';
 type View = 'LISTING' | 'SCANNING';
 
 const mockInsideTrucks = [
-  { id: 'ORD-2401', truck: 'TN-45-AX-1234', driver: 'Robert Fox', inTime: '24 Apr, 10:45 AM', bay: 'Bay 3', status: 'IN_TERMINAL', product: 'Diesel', quantity: '15,000 L', transporter: 'Global Logistics' },
-  { id: 'ORD-2402', truck: 'BE-12-G-9988', driver: 'Arlene McCoy', inTime: '24 Apr, 11:15 AM', bay: 'Bay 1', status: 'IN_TERMINAL', product: 'Petrol', quantity: '12,000 L', transporter: 'ABC Transport' },
-  { id: 'ORD-2403', truck: 'FR-99-PL-5566', driver: 'Cody Fisher', inTime: '24 Apr, 11:30 AM', bay: 'Bay 4', status: 'IN_TERMINAL', product: 'Diesel', quantity: '20,000 L', transporter: 'Nexus Energy' },
-  { id: 'ORD-2406', truck: 'UK-22-KJ-7744', driver: 'Jenny Wilson', inTime: '24 Apr, 12:10 PM', bay: 'Bay 2', status: 'LOADED', product: 'Aviation Fuel', quantity: '18,500 L', transporter: 'Global Logistics' },
-  { id: 'ORD-2409', truck: 'DE-88-MN-1122', driver: 'Guy Hawkins', inTime: '24 Apr, 12:45 PM', bay: 'Bay 5', status: 'IN_TERMINAL', product: 'Diesel', quantity: '5,000 L', transporter: 'Express Freight' },
-  { id: 'ORD-2412', truck: 'NL-44-BB-2233', driver: 'Leslie Alexander', inTime: '24 Apr, 01:05 PM', bay: 'Bay 1', status: 'EXITED', product: 'Petrol', quantity: '15,000 L', transporter: 'Swift Transport' },
+  { id: 'ORD-BE-1001', truck: '1-ABC-234', driver: 'Jean Dupont', inTime: '24 Apr, 10:45 AM', bay: 'Antwerp Bay 3', status: 'IN_TERMINAL', product: 'Steel Coils', quantity: '25 MT', transporter: 'H. Essers' },
+  { id: 'ORD-BE-1002', truck: '2-XYZ-789', driver: 'Marc De Smet', inTime: '24 Apr, 11:15 AM', bay: 'Antwerp Bay 1', status: 'IN_TERMINAL', product: 'Steel Bars', quantity: '18 MT', transporter: 'Van Moer Logistics' },
+  { id: 'ORD-BE-1003', truck: 'BE-TK-9087', driver: 'Thomas Vermeulen', inTime: '24 Apr, 11:30 AM', bay: 'Ghent Bay 4', status: 'IN_TERMINAL', product: 'Steel Coils', quantity: '30 MT', transporter: 'Sitra Group' },
+  { id: 'ORD-BE-1006', truck: '1-DEF-456', driver: 'Lucas Peeters', inTime: '24 Apr, 12:10 PM', bay: 'Zeebrugge Bay 2', status: 'LOADED', product: 'Steel Plates', quantity: '40 MT', transporter: 'Transport Gheys' },
+  { id: 'ORD-BE-1009', truck: '2-GHI-123', driver: 'Marc Vermeulen', inTime: '24 Apr, 12:45 PM', bay: 'Brussels Bay 5', status: 'IN_TERMINAL', product: 'Steel Coils', quantity: '20 MT', transporter: 'Katoen Natie' },
+  { id: 'ORD-BE-1012', truck: '1-JKL-789', driver: 'Jean Peeters', inTime: '24 Apr, 01:05 PM', bay: 'Antwerp Bay 1', status: 'DISPATCHED', product: 'Steel Bars', quantity: '15 MT', transporter: 'H. Essers' },
 ];
 
 export function GateControl() {
-  const [view, setView] = useState<View>('LISTING');
-  const [mode, setMode] = useState<Mode>('checkin');
-  const [passId, setPassId] = useState('');
+  const [searchParams] = useSearchParams();
+  const initialAction = searchParams.get('action') === 'scan' ? 'SCANNING' : 'LISTING';
+  const initialMode = (searchParams.get('mode') as Mode) || 'checkin';
+
+  const [view, setView] = useState<View>(initialAction);
+  const [mode, setMode] = useState<Mode>(initialMode);
+  const [passId, setPassId] = useState(searchParams.get('tripId') || '');
   const [pin, setPin] = useState('');
   const [orderData, setOrderData] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All Status');
+  const [areaFilter, setAreaFilter] = useState('All Areas');
+
+  // Checklist State for Exit
+  const [checklist, setChecklist] = useState({
+    documentsVerified: false,
+    securitySealIntact: false,
+    weightMatched: false
+  });
+  const [imageUploaded, setImageUploaded] = useState(false);
+
+  const filteredTrucks = mockInsideTrucks.filter(t => {
+    const matchesSearch = 
+      t.truck.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      t.driver.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.transporter.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'All Status' || t.status === statusFilter;
+    const matchesArea = areaFilter === 'All Areas' || t.bay.toLowerCase().includes(areaFilter.toLowerCase());
+
+    return matchesSearch && matchesStatus && matchesArea;
+  });
 
   const handleVerify = () => {
     setIsVerifying(true);
     setError('');
     
     setTimeout(() => {
-      if (passId === 'ORD-2401' || pin === '8842') {
+      if (passId === 'ORD-BE-1001' || pin === '8842') {
         const baseData = {
-          id: 'ORD-2401',
-          truck: 'TN-45-AX-1234',
-          driver: 'Robert Fox',
-          product: 'Diesel',
-          quantity: '15,000 L',
-          transporter: 'Global Logistics Solutions',
-          bay: 'Bay 3'
+          id: 'ORD-BE-1001',
+          truck: '1-ABC-234',
+          driver: 'Jean Dupont',
+          product: 'Steel Coils',
+          quantity: '25 MT',
+          transporter: 'H. Essers',
+          bay: 'Antwerp Bay 3'
         };
 
         if (mode === 'checkin') {
-          setOrderData({ ...baseData, status: 'ACCEPTED' });
+          setOrderData({ ...baseData, status: 'TRIP_SCHEDULED' });
         } else {
           setOrderData({ 
             ...baseData, 
             status: 'LOADED',
-            loadedQuantity: '15,000 L',
+            loadedQuantity: '25 MT',
             loadingManager: 'Mike Johnson',
             loadingTime: '24 Apr, 11:45 AM'
           });
@@ -66,9 +94,22 @@ export function GateControl() {
   };
 
   const handleAction = () => {
+    if (mode === 'checkout') {
+      if (!checklist.documentsVerified || !checklist.securitySealIntact || !checklist.weightMatched) {
+        alert('Please complete all verification checklist items before authorizing the exit.');
+        return;
+      }
+      if (!imageUploaded) {
+        alert('Gate/Seal verification image is required before exit.');
+        return;
+      }
+    }
+
     setOrderData(null);
     setPassId('');
     setPin('');
+    setChecklist({ documentsVerified: false, securitySealIntact: false, weightMatched: false });
+    setImageUploaded(false);
     setView('LISTING');
   };
 
@@ -247,6 +288,106 @@ export function GateControl() {
                     </div>
                   </div>
 
+                  {mode === 'checkout' && (
+                    <div className="space-y-3 pt-6 border-t border-slate-50">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-[16px] bg-green-50 flex items-center justify-center text-green-500 border border-green-100 shadow-inner">
+                          <ClipboardCheck className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-black text-slate-900 tracking-tight">Exit Safety & Verification</h4>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Complete all checks before exit</p>
+                        </div>
+                      </div>
+                      {[
+                        { id: 'documentsVerified', label: 'Have exit documents and shipping manifests been verified?', icon: FileCheck },
+                        { id: 'securitySealIntact', label: 'Is the security seal intact and recorded?', icon: ShieldCheck },
+                        { id: 'weightMatched', label: 'Does the exit weight match the loaded quantity?', icon: MapPin },
+                      ].map((item) => {
+                        const isChecked = checklist[item.id as keyof typeof checklist];
+                        return (
+                          <div
+                             key={item.id}
+                             className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                                isChecked
+                                ? 'bg-green-50/50 border-green-100'
+                                : 'bg-slate-50/50 border-slate-100'
+                             }`}
+                          >
+                             <div className="flex items-center gap-4">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                                   isChecked ? 'bg-green-100 text-green-600' : 'bg-white border border-slate-200 text-slate-400'
+                                }`}>
+                                   {isChecked ? <CheckCircle2 className="w-5 h-5" /> : <item.icon className="w-5 h-5" />}
+                                </div>
+                                <span className={`text-xs font-black uppercase tracking-tight ${isChecked ? 'text-green-700' : 'text-slate-600'}`}>
+                                   {item.label}
+                                </span>
+                             </div>
+                             
+                             <div className="flex items-center gap-2">
+                                <button
+                                   type="button"
+                                   onClick={() => setChecklist(prev => ({ ...prev, [item.id]: true }))}
+                                   className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                      isChecked 
+                                      ? 'bg-green-500 text-white shadow-md shadow-green-500/20' 
+                                      : 'bg-white border border-slate-200 text-slate-400 hover:border-green-200 hover:text-green-500'
+                                   }`}
+                                >
+                                   Yes
+                                </button>
+                                <button
+                                   type="button"
+                                   onClick={() => setChecklist(prev => ({ ...prev, [item.id]: false }))}
+                                   className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                      !isChecked 
+                                      ? 'bg-red-500 text-white shadow-md shadow-red-500/20' 
+                                      : 'bg-white border border-slate-200 text-slate-400 hover:border-red-200 hover:text-red-500'
+                                   }`}
+                                >
+                                   No
+                                </button>
+                             </div>
+                          </div>
+                        );
+                      })}
+                      
+                      <div className="pt-4">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 block mb-3">Gate/Seal Verification Image</label>
+                         <label
+                            className={`w-full py-[1.05rem] border-2 border-dashed rounded-2xl flex items-center justify-center gap-3 cursor-pointer transition-all ${
+                               imageUploaded 
+                               ? 'bg-green-50 border-green-200 text-green-600' 
+                               : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/20 hover:text-primary'
+                            }`}
+                         >
+                            <input 
+                               type="file" 
+                               className="hidden" 
+                               accept="image/*"
+                               onChange={(e) => {
+                                   if (e.target.files && e.target.files.length > 0) {
+                                       setImageUploaded(true);
+                                   }
+                               }}
+                            />
+                            {imageUploaded ? (
+                               <>
+                                  <CheckCircle2 className="w-5 h-5" />
+                                  <span className="text-[10px] font-black uppercase tracking-widest">Image Uploaded Successfully</span>
+                               </>
+                            ) : (
+                               <>
+                                  <Camera className="w-5 h-5" />
+                                  <span className="text-[10px] font-black uppercase tracking-widest">Upload Verification Photo</span>
+                               </>
+                            )}
+                         </label>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="pt-10 border-t border-slate-50">
                     <button 
                       onClick={handleAction}
@@ -315,19 +456,29 @@ export function GateControl() {
             />
           </div>
           <div className="relative">
-             <select className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-xs font-bold text-slate-600 appearance-none">
-               <option>Operational Status</option>
-               <option>In Terminal</option>
-               <option>Loaded</option>
-               <option>Exited</option>
+             <select 
+               value={statusFilter}
+               onChange={(e) => setStatusFilter(e.target.value)}
+               className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-xs font-bold text-slate-600 appearance-none"
+             >
+               <option>All Status</option>
+               <option value="IN_TERMINAL">In Terminal</option>
+               <option value="LOADED">Loaded</option>
+               <option value="DISPATCHED">Dispatched</option>
              </select>
              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
           <div className="relative">
-             <select className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-xs font-bold text-slate-600 appearance-none">
-               <option>Terminal Area</option>
-               <option>Terminal A</option>
-               <option>Terminal B</option>
+             <select 
+               value={areaFilter}
+               onChange={(e) => setAreaFilter(e.target.value)}
+               className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-xs font-bold text-slate-600 appearance-none"
+             >
+               <option>All Areas</option>
+               <option>Antwerp</option>
+               <option>Ghent</option>
+               <option>Zeebrugge</option>
+               <option>Brussels</option>
              </select>
              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
@@ -352,12 +503,7 @@ export function GateControl() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {mockInsideTrucks.filter(t => 
-                t.truck.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                t.driver.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                t.transporter.toLowerCase().includes(searchQuery.toLowerCase())
-              ).map((truck) => (
+              {filteredTrucks.map((truck) => (
                 <tr key={truck.id} className="hover:bg-slate-50/50 transition-all group">
                   <td className="pl-10 pr-6 py-5">
                     <div className="flex items-center gap-4">
@@ -395,7 +541,7 @@ export function GateControl() {
                           <span className={`px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
                             truck.status === 'LOADED' ? 'bg-green-50 text-green-600 border-green-100' :
                             truck.status === 'IN_TERMINAL' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                            truck.status === 'EXITED' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-500 border-slate-100'
+                            truck.status === 'DISPATCHED' ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-500 border-slate-100'
                           }`}>
                             {truck.status.replace('_', ' ')}
                           </span>

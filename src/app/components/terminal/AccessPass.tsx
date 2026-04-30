@@ -9,15 +9,15 @@ export function AccessPass() {
 
   // Mock pass data
   const pass = {
-    orderId: id || 'ORD-2401',
-    truckNumber: 'TN-45-AX-1234',
-    driverName: 'Robert Fox',
+    orderId: id || 'ORD-BE-1001',
+    truckNumber: '1-ABC-234',
+    driverName: 'Jean Dupont',
     pickupTime: '24 Apr 2026, 10:30 AM',
-    terminal: 'Duferco Terminal Alpha',
-    bay: 'Bay 3',
+    terminal: 'Antwerp Port Terminal',
+    bay: 'Antwerp Bay 3',
     pin: '8842',
-    product: 'Diesel',
-    quantity: '15,000 L',
+    product: 'Steel Coils',
+    quantity: '25 MT',
     expiryTime: '24 Apr 2026, 02:30 PM'
   };
 

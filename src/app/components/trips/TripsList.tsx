@@ -3,11 +3,11 @@ import { Plus, Search, Filter, Truck, MapPin, AlertCircle, Clock, CheckCircle } 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 const trips = [
-  { id: 'TRP-1045', transporter: 'Swift Transport', from: 'Terminal A', to: 'ABC Depot', status: 'progress', vehicle: 'TRK-445', time: '2h 15m left' },
-  { id: 'TRP-1044', transporter: 'Quick Haul', from: 'Terminal B', to: 'XYZ Warehouse', status: 'loading', vehicle: 'TRK-332', time: '45m left' },
-  { id: 'TRP-1043', transporter: 'Metro Logistics', from: 'Terminal A', to: 'Global Station', status: 'waiting', vehicle: 'TRK-881', time: '-' },
-  { id: 'TRP-1042', transporter: 'Fast Freight', from: 'Terminal C', to: 'Metro Hub', status: 'completed', vehicle: 'TRK-225', time: 'Done' },
-  { id: 'TRP-1041', transporter: 'Express Cargo', from: 'Terminal A', to: 'Regional Center', status: 'issue', vehicle: 'TRK-667', time: 'Delayed' },
+  { id: 'TRP-BE-1045', transporter: 'H. Essers', from: 'Antwerp Port Terminal', to: 'ArcelorMittal Gent', status: 'progress', vehicle: '1-ABC-234', time: '2h 15m left' },
+  { id: 'TRP-BE-1044', transporter: 'Van Moer Logistics', from: 'Ghent Terminal', to: 'TotalEnergies Brussels', status: 'loading', vehicle: '2-XYZ-789', time: '45m left' },
+  { id: 'TRP-BE-1043', transporter: 'Katoen Natie', from: 'Antwerp Port Terminal', to: 'Industrial Distribution Centers', status: 'waiting', vehicle: 'BE-TK-9087', time: '-' },
+  { id: 'TRP-BE-1042', transporter: 'Transport Gheys', from: 'Zeebrugge Terminal', to: 'ExxonMobil Antwerp Refinery', status: 'completed', vehicle: '1-DEF-456', time: 'Done' },
+  { id: 'TRP-BE-1041', transporter: 'Sitra Group', from: 'Antwerp Port Terminal', to: 'Brussels Depot', status: 'issue', vehicle: '2-GHI-123', time: 'Delayed' },
 ];
 
 const statusData = [

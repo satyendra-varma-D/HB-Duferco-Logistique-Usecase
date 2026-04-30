@@ -15,7 +15,7 @@ export function LoadingForm() {
     safetyCheck: false,
     imageUploaded: false
   });
-  const [loadedQty, setLoadedQty] = useState('15000');
+  const [loadedQty, setLoadedQty] = useState('25');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleStartLoading = () => {
@@ -157,10 +157,10 @@ export function LoadingForm() {
               <div className="space-y-6">
                  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Quantity</p>
-                    <p className="text-3xl font-black text-slate-900">15,000 L</p>
+                    <p className="text-3xl font-black text-slate-900">25 MT</p>
                  </div>
                  <div className="space-y-2 px-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Actual Loaded Quantity (L)</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Actual Loaded Quantity (MT)</label>
                     <input 
                        type="number"
                        value={loadedQty}
@@ -207,7 +207,7 @@ export function LoadingForm() {
            </div>
            <div>
               <h3 className="text-3xl font-black text-slate-900 tracking-tight">Loading Complete</h3>
-              <p className="text-sm font-bold text-slate-400 mt-2">The vehicle has been loaded with {loadedQty} L of Diesel.</p>
+              <p className="text-sm font-bold text-slate-400 mt-2">The vehicle has been loaded with {loadedQty} MT of Steel Coils.</p>
            </div>
            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest pt-4">Status Updated to: LOADED</p>
            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Headed to Gate Check-Out</p>

@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import {
   LayoutDashboard, Package, Truck, DoorOpen, Container,
   MapPin, FileText, BarChart3, Search, Bell, User,
-  Menu, ChevronLeft, ChevronDown, Settings, HelpCircle,
+  ChevronDown, Settings, HelpCircle,
   Plus, Command,
   LogOut, Shield, Terminal
 } from 'lucide-react';
@@ -14,8 +14,25 @@ export function RootLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<string[]>(['Operations', 'Intelligence', 'System']);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  
+  const notifications = [
+    { id: 1, title: 'Dispatch Alert', message: 'Order ORD-BE-1001 dispatched. Truck 1-ABC-234 is now live.', time: '2 mins ago', type: 'dispatch', role: 'TRANSPORTER', orderId: 'ORD-BE-1001', truckNo: '1-ABC-234' },
+    { id: 2, title: 'New Assignment', message: 'You have a new trip assignment for ArcelorMittal Gent.', time: '1 hour ago', type: 'assignment', role: 'TRANSPORTER', orderId: 'ORD-BE-1008' },
+    { id: 3, title: 'Slot Confirmed', message: 'Terminal slot for ORD-BE-1006 has been verified.', time: '3 hours ago', type: 'system', role: 'ADMIN', orderId: 'ORD-BE-1006' },
+  ];
+
+  const filteredNotifications = notifications.filter(n => !n.role || n.role === user?.role);
+
   const location = useLocation();
   const navigate = useNavigate();
+
+  const handleNotificationAction = (n: any) => {
+    if (n.role === 'TRANSPORTER' && n.type === 'dispatch') {
+      navigate('/orders', { state: { openOrderId: n.orderId } });
+      setShowNotifications(false);
+    }
+  };
 
   const navGroups = [
     {
@@ -41,7 +58,6 @@ export function RootLayout() {
     {
       title: 'System',
       items: [
-        { path: '/settings', label: 'Settings', icon: Settings, roles: ['ADMIN'] },
         { path: '/help', label: 'Help Center', icon: HelpCircle, roles: ['ADMIN', 'TRANSPORTER', 'TERMINAL_MANAGER', 'LOADING_MANAGER'] },
       ]
     }
@@ -97,9 +113,6 @@ export function RootLayout() {
                <span className="text-[10px] font-bold tracking-[0.2em] text-slate-400 leading-none uppercase">LOGISTIQUE</span>
             </div>
           </div>
-          <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-1.5 hover:bg-slate-50 rounded-lg transition-colors text-slate-400">
-             <Menu className="w-4 h-4" />
-          </button>
         </div>
 
         <nav className="flex-1 px-4 py-4 space-y-4 overflow-y-auto custom-scrollbar">
@@ -175,18 +188,9 @@ export function RootLayout() {
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Account</div>
                   <div className="text-[11px] text-slate-500 font-medium truncate mt-1">{user?.email}</div>
                 </div>
-                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-                  <User className="w-4 h-4" />
-                  My Profile
-                </button>
-                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-                  <Settings className="w-4 h-4" />
-                  Settings
-                </button>
-                <div className="h-px bg-slate-50 my-1" />
                 <button 
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                   Log Out
@@ -198,7 +202,7 @@ export function RootLayout() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 h-full flex flex-col overflow-hidden">
         {/* Top Bar */}
         <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-8 shrink-0">
           <div className="flex items-center gap-4 flex-1 max-w-2xl">
@@ -215,22 +219,86 @@ export function RootLayout() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button className="relative p-2 text-slate-400 hover:text-primary transition-colors">
+          <div className="flex items-center gap-2 relative">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className={`relative p-2 transition-colors rounded-lg ${showNotifications ? 'bg-primary/5 text-primary' : 'text-slate-400 hover:text-primary'}`}
+            >
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-[8px] font-bold text-white flex items-center justify-center rounded-full border-2 border-white">
-                3
-              </span>
+              {filteredNotifications.length > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-[8px] font-bold text-white flex items-center justify-center rounded-full border-2 border-white animate-bounce">
+                  {filteredNotifications.length}
+                </span>
+              )}
             </button>
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold ml-2 overflow-hidden">
-               {user?.avatar ? <img src={user.avatar} alt={user.name} /> : user?.name.charAt(0)}
+
+            {showNotifications && (
+              <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden z-[110] animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="p-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Notifications</h4>
+                  <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Mark all read</button>
+                </div>
+                <div className="max-h-[400px] overflow-y-auto">
+                  {filteredNotifications.length > 0 ? (
+                    filteredNotifications.map((n) => (
+                      <div 
+                        key={n.id} 
+                        className="p-5 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors cursor-pointer group"
+                        onClick={() => handleNotificationAction(n)}
+                      >
+                        <div className="flex gap-4">
+                          <div className={`w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center ${
+                            n.type === 'dispatch' ? 'bg-blue-50 text-blue-500' : 
+                            n.type === 'assignment' ? 'bg-indigo-50 text-indigo-500' : 'bg-slate-50 text-slate-500'
+                          }`}>
+                            {n.type === 'dispatch' ? <Truck className="w-5 h-5" /> : 
+                             n.type === 'assignment' ? <Package className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-xs font-black text-slate-900 group-hover:text-primary transition-colors">{n.title}</p>
+                            <p className="text-[11px] font-medium text-slate-500 mt-1 leading-relaxed">{n.message}</p>
+                            
+                            {n.role === 'TRANSPORTER' && n.type === 'dispatch' && (
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleNotificationAction(n);
+                                }}
+                                className="mt-3 w-full py-2 bg-[#0047AB] text-white text-[9px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-blue-900/10 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                              >
+                                <MapPin className="w-3 h-3" />
+                                Update Tracking Status
+                              </button>
+                            )}
+                            
+                            <p className="text-[9px] font-black text-slate-400 uppercase mt-2 tracking-widest">{n.time}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-10 text-center">
+                       <p className="text-xs font-bold text-slate-400">No new notifications</p>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 bg-slate-50/50 text-center border-t border-slate-50">
+                  <button className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-primary transition-colors">
+                    View All Activity
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold ml-2 overflow-hidden border-2 border-white shadow-sm">
+               {user?.avatar ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" /> : user?.name.charAt(0)}
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto bg-[#F9FBFC]">
-           <div className="p-8 w-full mx-auto">
+        <main className="flex-1 overflow-auto bg-[#F9FBFC] flex flex-col">
+           <div className="p-6 w-full h-full">
               <Outlet />
            </div>
         </main>

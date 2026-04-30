@@ -3,10 +3,11 @@ import { Link } from 'react-router';
 import { 
   ArrowLeft, Edit, Truck, Calendar, User, 
   Package, MapPin, Clock, ShieldCheck, Info,
-  ExternalLink, FileText, CheckCircle2, QrCode, X
+  ExternalLink, FileText, CheckCircle2, QrCode, X, ChevronRight
 } from 'lucide-react';
 
 import { OrderDocumentsTab } from './OrderDocumentsTab';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface OrderDetailProps {
   order: any;
@@ -15,23 +16,26 @@ interface OrderDetailProps {
 }
 
 export function OrderDetail({ order, activeTab: initialTab, setActiveTab: setExternalTab }: OrderDetailProps) {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(initialTab || 'details');
   const [isVerified, setIsVerified] = useState(false);
   const [showPassLink, setShowPassLink] = useState(false);
+
+  const isAdmin = user?.role === 'ADMIN';
 
   if (!order) return null;
 
   const getStatusConfig = (status: string) => {
     const configs: Record<string, { label: string; color: string }> = {
-      ORDER_PENDING: { label: 'ORDER PENDING', color: 'bg-amber-50 text-amber-600 border-amber-100' },
-      WAITING_FOR_APPROVAL: { label: 'WAITING FOR APPROVAL', color: 'bg-blue-50 text-blue-600 border-blue-100' },
-      TRANSPORTER_ASSIGNED: { label: 'ASSIGNED', color: 'bg-indigo-50 text-indigo-600 border-indigo-100' },
-      ACCEPTED: { label: 'TRIP SCHEDULED', color: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
-      YET_TO_COME: { label: 'YET TO COME', color: 'bg-orange-50 text-orange-600 border-orange-100' },
-      IN_TERMINAL: { label: 'IN TERMINAL', color: 'bg-blue-600 text-white border-blue-600' },
-      LOADED: { label: 'LOADED', color: 'bg-green-100 text-green-700 border-green-200' },
-      EXITED: { label: 'EXITED', color: 'bg-slate-900 text-white border-slate-900' },
-      COMPLETED: { label: 'COMPLETED', color: 'bg-green-50 text-green-600 border-green-100' },
+      CREATED: { label: 'CREATED', color: 'bg-amber-50 text-amber-600 border-amber-100' },
+      ASSIGNED: { label: 'ASSIGNED', color: 'bg-blue-50 text-blue-600 border-blue-100' },
+      TRIP_SCHEDULED: { label: 'TRIP SCHEDULED', color: 'bg-indigo-50 text-indigo-600 border-indigo-100' },
+      IN_TERMINAL: { label: 'IN TERMINAL', color: 'bg-purple-50 text-purple-600 border-purple-100' },
+      LOADING: { label: 'LOADING', color: 'bg-orange-50 text-orange-600 border-orange-100' },
+      LOADED: { label: 'LOADED', color: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
+      DISPATCHED: { label: 'DISPATCHED', color: 'bg-slate-900 text-white border-slate-900' },
+      IN_TRANSIT: { label: 'IN TRANSIT', color: 'bg-blue-600 text-white border-blue-600' },
+      DELIVERED: { label: 'DELIVERED', color: 'bg-green-50 text-green-600 border-green-100' },
       REJECTED: { label: 'REJECTED', color: 'bg-red-50 text-red-600 border-red-100' },
     };
     return configs[status] || { label: status, color: 'bg-slate-50 text-slate-500 border-slate-100' };
@@ -76,7 +80,7 @@ export function OrderDetail({ order, activeTab: initialTab, setActiveTab: setExt
             activeTab === 'schedule' ? 'bg-white text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'
           }`}
         >
-          Pickup Schedule
+          Schedule & Tracking
         </button>
         <button 
           onClick={() => setActiveTab('documents')}
@@ -220,78 +224,174 @@ export function OrderDetail({ order, activeTab: initialTab, setActiveTab: setExt
           /* Schedule Tab Content */
           <div className="lg:col-span-3">
              <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-10 opacity-[0.03]">
-                   <Calendar className="w-64 h-64" />
-                </div>
-                
-                <div className="max-w-4xl">
+                <div className="w-full">
                    <div className="flex items-center gap-4 mb-10">
                       <div className="w-16 h-16 rounded-[24px] bg-indigo-50 flex items-center justify-center text-indigo-500 border border-indigo-100 shadow-inner">
                          <Calendar className="w-8 h-8" />
                       </div>
                       <div>
-                         <h3 className="text-2xl font-black text-slate-900 tracking-tight">Pickup Schedule Info</h3>
-                         <p className="text-sm font-bold text-slate-400">Details provided by {order.assignedTransporterName}</p>
+                         <h3 className="text-2xl font-black text-slate-900 tracking-tight">Schedule & Tracking Info</h3>
+                         <p className="text-sm font-bold text-slate-400">Manage trip status and view route progress</p>
                       </div>
                    </div>
 
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                      <div className="space-y-10">
-                         <div className="flex items-start gap-5">
-                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
-                               <Truck className="w-6 h-6" />
-                            </div>
-                            <div>
-                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Truck Number</p>
-                               <p className="text-xl font-black text-slate-900">{order.truckNumber}</p>
-                               <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black rounded-lg uppercase tracking-wider">
-                                  <ShieldCheck className="w-3.5 h-3.5" />
-                                  Verified Vehicle
-                               </div>
-                            </div>
-                         </div>
+                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                     {/* Left Column: Schedule Details */}
+                     <div className="space-y-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 group hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all">
+                              <div className="flex items-center gap-4 mb-4">
+                                 <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 group-hover:text-primary transition-colors">
+                                    <Truck className="w-5 h-5" />
+                                 </div>
+                                 <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Truck Number</p>
+                                    <p className={`text-base font-black ${['CREATED', 'ASSIGNED'].includes(order.status) ? 'text-slate-300 italic' : 'text-slate-900'}`}>
+                                       {['CREATED', 'ASSIGNED'].includes(order.status) ? 'Waiting for Logistics provider Response' : order.truckNumber}
+                                    </p>
+                                 </div>
+                              </div>
+                              {order.truckNumber && !['CREATED', 'ASSIGNED'].includes(order.status) && (
+                                <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-green-50 text-green-600 text-[9px] font-black rounded-lg uppercase tracking-wider">
+                                   <ShieldCheck className="w-3 h-3" />
+                                   Verified
+                                </div>
+                              )}
+                           </div>
 
-                         <div className="flex items-start gap-5">
-                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
-                               <User className="w-6 h-6" />
-                            </div>
-                            <div>
-                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Assigned Driver</p>
-                               <p className="text-xl font-black text-slate-900">{order.driverName}</p>
-                               <button className="mt-2 text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-1 hover:underline">
-                                  <ExternalLink className="w-3 h-3" />
-                                  View License Documents
-                               </button>
-                            </div>
-                         </div>
-                      </div>
+                           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 group hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all">
+                              <div className="flex items-center gap-4 mb-4">
+                                 <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 group-hover:text-primary transition-colors">
+                                    <User className="w-5 h-5" />
+                                 </div>
+                                 <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned Driver</p>
+                                    <p className={`text-base font-black ${['CREATED', 'ASSIGNED'].includes(order.status) ? 'text-slate-300 italic' : 'text-slate-900'}`}>
+                                       {['CREATED', 'ASSIGNED'].includes(order.status) ? 'Waiting for Logistics provider Response' : order.driverName}
+                                    </p>
+                                 </div>
+                              </div>
+                              {order.driverName && !['CREATED', 'ASSIGNED'].includes(order.status) && (
+                                <button className="text-[9px] font-black text-primary uppercase tracking-widest flex items-center gap-1 hover:underline">
+                                   <ExternalLink className="w-3 h-3" />
+                                   License Docs
+                                </button>
+                              )}
+                           </div>
 
-                      <div className="space-y-10">
-                         <div className="flex items-start gap-5">
-                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
-                               <Clock className="w-6 h-6" />
-                            </div>
-                            <div>
-                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Confirmed Time Slot</p>
-                               <p className="text-xl font-black text-slate-900">{order.pickupTimeSlot}</p>
-                               <p className="mt-2 text-xs font-bold text-slate-400 italic">Expected at Bay 3</p>
-                            </div>
-                         </div>
+                           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 group hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all">
+                              <div className="flex items-center gap-4 mb-4">
+                                 <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 group-hover:text-primary transition-colors">
+                                    <Clock className="w-5 h-5" />
+                                 </div>
+                                 <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scheduled Time Slot</p>
+                                    <p className={`text-base font-black ${['CREATED', 'ASSIGNED'].includes(order.status) ? 'text-slate-300 italic' : 'text-slate-900'}`}>
+                                       {['CREATED', 'ASSIGNED'].includes(order.status) ? 'Waiting for Logistics provider Response' : order.pickupTimeSlot}
+                                    </p>
+                                 </div>
+                              </div>
+                              {order.pickupTimeSlot && !['CREATED', 'ASSIGNED'].includes(order.status) && (
+                                <p className="text-[10px] font-bold text-slate-400 italic">Expected at Bay 3</p>
+                              )}
+                           </div>
 
-                         <div className="flex items-start gap-5">
-                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
-                               <Package className="w-6 h-6" />
-                            </div>
-                            <div>
-                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pickup Quantity</p>
-                               <p className="text-xl font-black text-slate-900">{order.pickupQuantity}</p>
-                               <p className="mt-2 text-xs font-bold text-slate-400 italic">Full tank capacity: 15,000 L</p>
-                            </div>
-                         </div>
-                      </div>
+                           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 group hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all">
+                              <div className="flex items-center gap-4 mb-4">
+                                 <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 group-hover:text-primary transition-colors">
+                                    <Package className="w-5 h-5" />
+                                 </div>
+                                 <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scheduled Quantity</p>
+                                    <p className={`text-base font-black ${['CREATED', 'ASSIGNED'].includes(order.status) ? 'text-slate-300 italic' : 'text-slate-900'}`}>
+                                       {['CREATED', 'ASSIGNED'].includes(order.status) ? 'Waiting for Logistics provider Response' : order.pickupQuantity}
+                                    </p>
+                                 </div>
+                              </div>
+                              {order.pickupQuantity && !['CREATED', 'ASSIGNED'].includes(order.status) && (
+                                <p className="text-[10px] font-bold text-slate-400 italic">Capacity: 25 MT</p>
+                              )}
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* Right Column: Live Tracking & Visualization */}
+                     <div className="space-y-6">
+                        {user?.role === 'TRANSPORTER' ? (
+                          <div className="p-8 bg-slate-900 rounded-[40px] text-white shadow-2xl relative overflow-hidden group border border-slate-800">
+                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
+                             <div className="relative z-10">
+                                <div className="flex items-center justify-between mb-8">
+                                   <div className="flex items-center gap-3">
+                                      <div className="p-2.5 bg-blue-600 rounded-2xl shadow-lg shadow-blue-600/20">
+                                         <MapPin className="w-5 h-5 text-white" />
+                                      </div>
+                                      <h4 className="text-sm font-black uppercase tracking-[0.2em]">Live Tracking</h4>
+                                   </div>
+                                   <div className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-[9px] font-black text-blue-400 uppercase tracking-widest animate-pulse">
+                                      Active Broadcast
+                                   </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                   <div className="space-y-2.5">
+                                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Select Checkpoint</label>
+                                      <div className="relative">
+                                         <select 
+                                            className="w-full h-14 pl-5 pr-12 bg-slate-800 border border-slate-700 rounded-2xl outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm font-bold text-white appearance-none cursor-pointer"
+                                            defaultValue="Antwerp Port Exit"
+                                         >
+                                            <option className="bg-slate-900">Antwerp Port Exit</option>
+                                            <option className="bg-slate-900">E313 Highway - Milestone 45</option>
+                                            <option className="bg-slate-900">Ghent Interchange</option>
+                                            <option className="bg-slate-900">Final Destination Approach</option>
+                                         </select>
+                                         <ChevronRight className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 pointer-events-none rotate-90" />
+                                      </div>
+                                   </div>
+
+                                   <div className="pt-4 space-y-4">
+                                      <div className="flex justify-between items-end mb-2">
+                                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Route Progress</p>
+                                         <p className="text-xs font-black text-blue-400">45% Complete</p>
+                                      </div>
+                                      <div className="h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700 p-0.5">
+                                         <div className="h-full w-[45%] bg-gradient-to-r from-blue-600 to-blue-400 rounded-full shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
+                                      </div>
+                                      <div className="flex justify-between text-[9px] font-black text-slate-600 uppercase tracking-tighter">
+                                         <span>Antwerp Terminal</span>
+                                         <span>Destination</span>
+                                      </div>
+                                   </div>
+
+                                   <button 
+                                      className="w-full h-14 bg-blue-600 text-white text-[11px] font-black rounded-2xl uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl shadow-blue-600/20 flex items-center justify-center gap-3 active:scale-95"
+                                      onClick={() => alert('Tracking status broadcasted!')}
+                                   >
+                                      <Truck className="w-4 h-4" />
+                                      Broadcast Update
+                                   </button>
+                                </div>
+                             </div>
+                          </div>
+                        ) : (
+                          <div className="p-8 bg-white rounded-[40px] border border-slate-100 shadow-sm h-full relative overflow-hidden">
+                             <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] opacity-20" />
+                             <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-6">
+                                <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center text-primary mb-6 shadow-inner">
+                                   <MapPin className="w-10 h-10" />
+                                </div>
+                                <h4 className="text-lg font-black text-slate-900 mb-2">Live Route Visualization</h4>
+                                <p className="text-xs font-medium text-slate-400 max-w-[200px]">
+                                   Tracking is currently active. Transporter is broadcasting from route checkpoints.
+                                </p>
+                             </div>
+                          </div>
+                        )}
+                     </div>
                    </div>
 
-                    {order.status === 'ACCEPTED' && (
+                    {order.status === 'TRIP_SCHEDULED' && isAdmin && (
                        <div className="mt-16 pt-10 border-t border-slate-50 flex items-center justify-between">
                           <div className="flex items-center gap-3">
                              <div className="w-10 h-10 rounded-full bg-blue-50 text-primary flex items-center justify-center">
@@ -309,7 +409,7 @@ export function OrderDetail({ order, activeTab: initialTab, setActiveTab: setExt
                                }}
                                className="px-8 py-4 bg-primary text-white text-xs font-black rounded-2xl shadow-xl shadow-primary/20 hover:shadow-xl hover:-translate-y-1 transition-all uppercase tracking-widest"
                              >
-                               Verify & Confirm Slot
+                               Generate the Link
                              </button>
                           ) : (
                              <div className="flex items-center gap-4">
@@ -335,12 +435,7 @@ export function OrderDetail({ order, activeTab: initialTab, setActiveTab: setExt
         ) : (
           /* Documents Tab Content */
           <div className="lg:col-span-3">
-            <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm min-h-[500px]">
-               <div className="max-w-2xl">
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-8">Trip Documentation</h3>
-                  <OrderDocumentsTab order={order} isVerified={isVerified} />
-               </div>
-            </div>
+             <OrderDocumentsTab order={order} isVerified={isVerified} />
           </div>
         )}
       </div>

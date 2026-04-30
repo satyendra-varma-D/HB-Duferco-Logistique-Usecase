@@ -24,7 +24,7 @@ export function TripDetail() {
           <div>
             <h2>Trip: {id}</h2>
             <div className="text-sm text-muted-foreground mt-1">
-              Swift Transport • TRK-445
+              H. Essers • 1-ABC-234
             </div>
           </div>
         </div>
@@ -49,43 +49,43 @@ export function TripDetail() {
             <div className="p-4 space-y-3">
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Order ID</div>
-                <Link to="/orders/ORD-2401" className="text-primary hover:underline">
-                  ORD-2401
+                <Link to="/orders/ORD-BE-1001" className="text-primary hover:underline">
+                  ORD-BE-1001
                 </Link>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Customer</div>
-                <div className="font-medium">ABC Logistics</div>
+                <div className="font-medium">ArcelorMittal Gent</div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Product</div>
-                <div className="font-medium">Diesel</div>
+                <div className="font-medium">Steel Coils</div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Quantity</div>
-                <div className="font-medium">5,000 L</div>
+                <div className="font-medium">25 MT</div>
               </div>
               <div className="border-t border-border pt-3">
                 <div className="text-sm text-muted-foreground mb-1">From</div>
-                <div className="font-medium">Terminal A, Bay 3</div>
+                <div className="font-medium">Antwerp Port Terminal, Bay 3</div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground mb-1">To</div>
-                <div className="font-medium">ABC Logistics Depot</div>
+                <div className="font-medium">ArcelorMittal Gent</div>
               </div>
               <div className="border-t border-border pt-3">
                 <div className="text-sm text-muted-foreground mb-1">Transporter</div>
-                <div className="font-medium">Swift Transport</div>
+                <div className="font-medium">H. Essers</div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Driver</div>
-                <div className="font-medium">John Smith</div>
-                <div className="text-sm text-muted-foreground">+1 555 0123</div>
+                <div className="font-medium">Jean Dupont</div>
+                <div className="text-sm text-muted-foreground">+32 470 12 34 56</div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Vehicle</div>
-                <div className="font-medium">TRK-445</div>
-                <div className="text-sm text-muted-foreground">Plate: ABC-1234</div>
+                <div className="font-medium">1-ABC-234</div>
+                <div className="text-sm text-muted-foreground">Type: Flatbed</div>
               </div>
             </div>
           </div>

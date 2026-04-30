@@ -73,22 +73,22 @@ export function OrderForm({ onClose, hideTitle }: OrderFormProps) {
               <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Product *</label>
               <select
                 required
-                defaultValue={isEdit ? 'diesel' : ''}
+                defaultValue={isEdit ? 'steel_coils' : ''}
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold appearance-none shadow-sm"
               >
                 <option value="">Select Product</option>
-                <option value="diesel">Diesel</option>
-                <option value="petrol">Petrol</option>
-                <option value="kerosene">Kerosene</option>
+                <option value="steel_coils">Steel Coils</option>
+                <option value="steel_bars">Steel Bars</option>
+                <option value="steel_plates">Steel Plates</option>
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Quantity (Liters) *</label>
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Quantity (MT) *</label>
               <input
                 type="number"
                 required
                 placeholder="0.00"
-                defaultValue={isEdit ? '15000' : ''}
+                defaultValue={isEdit ? '25' : ''}
                 className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold shadow-sm"
               />
             </div>

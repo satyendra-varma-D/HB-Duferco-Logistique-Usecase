@@ -39,7 +39,7 @@ export function OrderScheduleForm({ order, onSubmit, onCancel }: OrderScheduleFo
       truckNumber: formData.truckNumber,
       driverName: formData.driverName,
       pickupTimeSlot: `${formData.pickupDate} ${formData.pickupTime}`,
-      pickupQuantity: `${formData.pickupQuantity} L`,
+      pickupQuantity: `${formData.pickupQuantity} MT`,
     });
   };
 
@@ -123,7 +123,7 @@ export function OrderScheduleForm({ order, onSubmit, onCancel }: OrderScheduleFo
           <div className="space-y-1.5">
             <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2">
               <Package className="w-3.5 h-3.5" />
-              Pickup Quantity (Liters)
+              Pickup Quantity (MT)
             </label>
             <input
               type="number"

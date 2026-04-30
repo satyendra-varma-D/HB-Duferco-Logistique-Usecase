@@ -9,10 +9,10 @@ import {
 } from 'recharts';
 
 const loadingQueue = [
-  { id: 'TRP-1045', product: 'Diesel', planned: '5000', bay: 'Bay 3', status: 'waiting', operator: 'Unassigned', progress: 0 },
-  { id: 'TRP-1044', product: 'Petrol', planned: '12000', bay: 'Bay 1', status: 'loading', operator: 'Mike Johnson', progress: 65 },
-  { id: 'TRP-1046', product: 'Diesel', planned: '8000', bay: 'Bay 5', status: 'waiting', operator: 'Unassigned', progress: 0 },
-  { id: 'TRP-1047', product: 'Kerosene', planned: '6000', bay: 'Bay 2', status: 'loading', operator: 'Sarah Williams', progress: 30 },
+  { id: 'TRP-1045', product: 'Steel Coils', planned: '25', bay: 'Bay 3', status: 'waiting', operator: 'Unassigned', progress: 0 },
+  { id: 'TRP-1044', product: 'Steel Bars', planned: '18', bay: 'Bay 1', status: 'loading', operator: 'Mike Johnson', progress: 65 },
+  { id: 'TRP-1046', product: 'Steel Coils', planned: '30', bay: 'Bay 5', status: 'waiting', operator: 'Unassigned', progress: 0 },
+  { id: 'TRP-1047', product: 'Steel Plates', planned: '40', bay: 'Bay 2', status: 'loading', operator: 'Sarah Williams', progress: 30 },
 ];
 
 const bayStatus = [
@@ -24,12 +24,12 @@ const bayStatus = [
 ];
 
 const performanceData = [
-  { time: '08:00', liters: 4500 },
-  { time: '10:00', liters: 7800 },
-  { time: '12:00', liters: 6200 },
-  { time: '14:00', liters: 12000 },
-  { time: '16:00', liters: 9500 },
-  { time: '18:00', liters: 5000 },
+  { time: '08:00', mt: 45 },
+  { time: '10:00', mt: 78 },
+  { time: '12:00', mt: 62 },
+  { time: '14:00', mt: 120 },
+  { time: '16:00', mt: 95 },
+  { time: '18:00', mt: 50 },
 ];
 
 const statusColors = {
@@ -38,6 +38,16 @@ const statusColors = {
 };
 
 export function LoadingList() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [bayFilter, setBayFilter] = useState('All Bays');
+
+  const filteredQueue = loadingQueue.filter(item => {
+    const matchesSearch = item.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          item.product.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesBay = bayFilter === 'All Bays' || item.bay === bayFilter;
+    return matchesSearch && matchesBay;
+  });
+
   return (
     <div className="space-y-6 pb-6">
       <div className="flex items-center justify-between">
@@ -53,7 +63,7 @@ export function LoadingList() {
         {[
           { label: 'Active Loadings', value: '8', icon: Activity, color: 'text-primary' },
           { label: 'Avg. Loading Time', value: '24 min', icon: Clock, color: 'text-amber-500' },
-          { label: 'Total Liters (Today)', value: '145k', icon: Fuel, color: 'text-green-500' },
+          { label: 'Total MT (Today)', value: '2.5k', icon: Fuel, color: 'text-green-500' },
           { label: 'Operator Efficiency', value: '94%', icon: Users, color: 'text-blue-500' },
         ].map((kpi) => (
           <div key={kpi.label} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
@@ -103,7 +113,7 @@ export function LoadingList() {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={performanceData}>
                 <defs>
-                  <linearGradient id="colorLiters" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="colorMT" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#0066FF" stopOpacity={0.1}/>
                     <stop offset="95%" stopColor="#0066FF" stopOpacity={0}/>
                   </linearGradient>
@@ -116,20 +126,20 @@ export function LoadingList() {
                     if (active && payload && payload.length) {
                       return (
                         <div className="bg-slate-900 text-white px-2 py-1 rounded text-[10px] font-bold shadow-lg">
-                          {payload[0].value.toLocaleString()} L
+                          {payload[0].value.toLocaleString()} MT
                         </div>
                       );
                     }
                     return null;
                   }}
                 />
-                <Area type="monotone" dataKey="liters" stroke="#0066FF" fillOpacity={1} fill="url(#colorLiters)" strokeWidth={2} />
+                <Area type="monotone" dataKey="mt" stroke="#0066FF" fillOpacity={1} fill="url(#colorMT)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
           <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
             <div className="text-[10px] font-bold text-slate-400 uppercase">Peak Throughput</div>
-            <div className="text-xs font-bold text-primary">12,000 L/hr</div>
+            <div className="text-xs font-bold text-primary">200 MT/hr</div>
           </div>
         </div>
       </div>
@@ -144,12 +154,18 @@ export function LoadingList() {
               <input
                 type="text"
                 placeholder="Search Trip ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 pr-4 py-2 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-xs w-48"
               />
             </div>
-            <select className="px-3 py-2 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-xs font-medium text-slate-600">
+            <select 
+              value={bayFilter}
+              onChange={(e) => setBayFilter(e.target.value)}
+              className="px-3 py-2 bg-slate-50 border border-transparent rounded-xl outline-none focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-xs font-medium text-slate-600"
+            >
               <option>All Bays</option>
-              {bayStatus.map(b => <option key={b.id}>{b.id}</option>)}
+              {bayStatus.map(b => <option key={b.id} value={b.id}>{b.id}</option>)}
             </select>
           </div>
         </div>
@@ -160,7 +176,7 @@ export function LoadingList() {
               <tr className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">
                 <th className="pb-4 px-2">Trip ID</th>
                 <th className="pb-4 px-2">Product</th>
-                <th className="pb-4 px-2">Planned Qty (L)</th>
+                <th className="pb-4 px-2">Planned Qty (MT)</th>
                 <th className="pb-4 px-2">Bay</th>
                 <th className="pb-4 px-2">Operator</th>
                 <th className="pb-4 px-2">Progress</th>
@@ -169,7 +185,7 @@ export function LoadingList() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {loadingQueue.map((item) => (
+              {filteredQueue.map((item) => (
                 <tr key={item.id} className="group hover:bg-slate-50/50 transition-colors">
                   <td className="py-4 px-2">
                     <Link to={`/loading/${item.id}`} className="text-xs font-bold text-primary hover:underline">

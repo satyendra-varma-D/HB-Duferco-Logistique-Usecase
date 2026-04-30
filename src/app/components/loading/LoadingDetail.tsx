@@ -48,7 +48,7 @@ export function LoadingDetail() {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Product</div>
-                <div className="font-medium">Diesel</div>
+                <div className="font-medium">Steel Coils</div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Loading Bay</div>
@@ -65,16 +65,16 @@ export function LoadingDetail() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-muted/50 p-4 rounded">
                   <div className="text-sm text-muted-foreground mb-2">Planned Quantity</div>
-                  <div className="text-2xl font-medium">5,000 L</div>
+                  <div className="text-2xl font-medium">25 MT</div>
                 </div>
                 <div className="bg-muted/50 p-4 rounded">
                   <div className="text-sm text-muted-foreground mb-2">Actual Quantity</div>
-                  <div className="text-2xl font-medium text-primary">4,950 L</div>
+                  <div className="text-2xl font-medium text-primary">25 MT</div>
                 </div>
               </div>
               <div className="bg-[#F59E0B]/10 border border-[#F59E0B]/20 text-[#F59E0B] p-4 rounded">
                 <div className="font-medium mb-1">Variance Detected</div>
-                <div className="text-sm">Actual quantity is 50 L less than planned (-1.0%)</div>
+                <div className="text-sm">Actual quantity matches planned exactly</div>
               </div>
             </div>
           </div>
@@ -114,7 +114,7 @@ export function LoadingDetail() {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Meter Reading</div>
-                <div className="font-medium">154,950 L</div>
+                <div className="font-medium">154,950 MT</div>
               </div>
             </div>
           </div>

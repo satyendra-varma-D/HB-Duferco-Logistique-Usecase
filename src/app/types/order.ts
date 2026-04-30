@@ -1,4 +1,4 @@
-export type OrderStatus = 'WAITING_FOR_APPROVAL' | 'TRANSPORTER_ASSIGNED' | 'REJECTED' | 'ACCEPTED' | 'AT_GATE' | 'LOADING' | 'LOADED' | 'IN_TRANSIT' | 'COMPLETED';
+export type OrderStatus = 'CREATED' | 'ASSIGNED' | 'TRIP_SCHEDULED' | 'IN_TERMINAL' | 'LOADING' | 'LOADED' | 'DISPATCHED' | 'IN_TRANSIT' | 'DELIVERED' | 'REJECTED';
 
 export type OrderType = 'SYSTEM' | 'MANUAL';
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { 
   ScanLine, ShieldCheck, Truck, User, 
   Package, Clock, MapPin, AlertCircle, 
@@ -7,7 +8,8 @@ import {
 } from 'lucide-react';
 
 export function LoadingControl() {
-  const [passId, setPassId] = useState('');
+  const [searchParams] = useSearchParams();
+  const [passId, setPassId] = useState(searchParams.get('tripId') || '');
   const [pin, setPin] = useState('');
   const [orderData, setOrderData] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -31,17 +33,17 @@ export function LoadingControl() {
     
     // Simulate API call
     setTimeout(() => {
-      // For demo, ORD-2401 is our test case
-      if (passId === 'ORD-2401' || pin === '8842') {
+      // For demo, ORD-BE-1001 is our test case
+      if (passId === 'ORD-BE-1001' || pin === '8842') {
         setOrderData({
-          id: 'ORD-2401',
-          truck: 'TN-45-AX-1234',
-          driver: 'Robert Fox',
-          product: 'Diesel',
-          orderedQuantity: '15,000 L',
-          location: 'Terminal A, Bay 3',
-          transporter: 'Global Logistics Solutions',
-          status: 'AT_GATE'
+          id: 'ORD-BE-1001',
+          truck: '1-ABC-234',
+          driver: 'Jean Dupont',
+          product: 'Steel Coils',
+          orderedQuantity: '25 MT',
+          location: 'Antwerp Port Terminal, Bay 3',
+          transporter: 'H. Essers',
+          status: 'IN_TERMINAL'
         });
       } else {
         setError('Invalid Pass ID or PIN. Ensure the truck has checked in at the gate.');
@@ -243,41 +245,61 @@ export function LoadingControl() {
                     </div>
                  </div>
 
-                 {/* Safety Checklist */}
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="space-y-3">
                     {[
-                       { id: 'driverVerified', label: 'Verify Driver ID & License', icon: User },
-                       { id: 'truckInspected', label: 'Inspect Truck Compartments', icon: Truck },
-                       { id: 'ppeConfirmed', label: 'Safety Gear (PPE) Verified', icon: ShieldCheck },
-                       { id: 'bayReady', label: 'Loading Bay (Bay 3) Clear', icon: MapPin },
-                    ].map((item) => (
-                       <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setChecklist(prev => ({ ...prev, [item.id]: !prev[item.id as keyof typeof checklist] }))}
-                          className={`flex items-center justify-between p-5 rounded-3xl border transition-all text-left ${
-                             checklist[item.id as keyof typeof checklist]
-                             ? 'bg-green-50 border-green-100 shadow-inner'
-                             : 'bg-white border-slate-100 hover:border-slate-200'
-                          }`}
-                       >
-                          <div className="flex items-center gap-4">
-                             <div className={`p-2 rounded-lg ${checklist[item.id as keyof typeof checklist] ? 'text-green-500' : 'text-slate-300'}`}>
-                                <item.icon className="w-5 h-5" />
+                       { id: 'driverVerified', label: 'Have you verified the Driver ID & License?', icon: User },
+                       { id: 'truckInspected', label: 'Has the truck compartment been inspected?', icon: Truck },
+                       { id: 'ppeConfirmed', label: 'Is the driver wearing appropriate Safety Gear (PPE)?', icon: ShieldCheck },
+                       { id: 'bayReady', label: 'Is the Loading Bay (Bay 3) clear and ready?', icon: MapPin },
+                    ].map((item) => {
+                       const isChecked = checklist[item.id as keyof typeof checklist];
+                       return (
+                          <div
+                             key={item.id}
+                             className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                                isChecked
+                                ? 'bg-green-50/50 border-green-100'
+                                : 'bg-slate-50/50 border-slate-100'
+                             }`}
+                          >
+                             <div className="flex items-center gap-4">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                                   isChecked ? 'bg-green-100 text-green-600' : 'bg-white border border-slate-200 text-slate-400'
+                                }`}>
+                                   {isChecked ? <CheckCircle2 className="w-5 h-5" /> : <item.icon className="w-5 h-5" />}
+                                </div>
+                                <span className={`text-xs font-black uppercase tracking-tight ${isChecked ? 'text-green-700' : 'text-slate-600'}`}>
+                                   {item.label}
+                                </span>
                              </div>
-                             <span className={`text-xs font-black uppercase tracking-tight ${checklist[item.id as keyof typeof checklist] ? 'text-green-700' : 'text-slate-500'}`}>
-                                {item.label}
-                             </span>
+                             
+                             <div className="flex items-center gap-2">
+                                <button
+                                   type="button"
+                                   onClick={() => setChecklist(prev => ({ ...prev, [item.id]: true }))}
+                                   className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                      isChecked 
+                                      ? 'bg-green-500 text-white shadow-md shadow-green-500/20' 
+                                      : 'bg-white border border-slate-200 text-slate-400 hover:border-green-200 hover:text-green-500'
+                                   }`}
+                                >
+                                   Yes
+                                </button>
+                                <button
+                                   type="button"
+                                   onClick={() => setChecklist(prev => ({ ...prev, [item.id]: false }))}
+                                   className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                                      !isChecked 
+                                      ? 'bg-red-500 text-white shadow-md shadow-red-500/20' 
+                                      : 'bg-white border border-slate-200 text-slate-400 hover:border-red-200 hover:text-red-500'
+                                   }`}
+                                >
+                                   No
+                                </button>
+                             </div>
                           </div>
-                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                             checklist[item.id as keyof typeof checklist]
-                             ? 'bg-green-500 border-green-500 text-white'
-                             : 'border-slate-100'
-                          }`}>
-                             {checklist[item.id as keyof typeof checklist] && <CheckCircle2 className="w-4 h-4" />}
-                          </div>
-                       </button>
-                    ))}
+                       );
+                    })}
                  </div>
 
                  <div className="h-px bg-slate-50" />
@@ -286,7 +308,7 @@ export function LoadingControl() {
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <div className="space-y-4">
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Actual Loaded Quantity (L)</label>
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Actual Loaded Quantity (MT)</label>
                           <div className="relative group">
                              <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-primary transition-colors" />
                              <input 
@@ -294,36 +316,44 @@ export function LoadingControl() {
                                 required
                                 value={loadingQty}
                                 onChange={(e) => setLoadingQty(e.target.value)}
-                                placeholder="ENTER LOADED LITERS"
+                                placeholder="ENTER LOADED MT"
                                 className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-4 ring-primary/5 focus:bg-white focus:border-primary/20 transition-all text-sm font-black"
                              />
                           </div>
                        </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-4 flex flex-col justify-end">
                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Compartment Verification Image</label>
-                       <button
-                          type="button"
-                          onClick={() => setImageUploaded(true)}
-                          className={`w-full h-[140px] border-2 border-dashed rounded-[32px] flex flex-col items-center justify-center gap-3 transition-all ${
+                       <label
+                          className={`w-full py-[1.05rem] border-2 border-dashed rounded-2xl flex items-center justify-center gap-3 cursor-pointer transition-all ${
                              imageUploaded 
                              ? 'bg-green-50 border-green-200 text-green-600' 
                              : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-primary/20 hover:text-primary'
                           }`}
                        >
+                          <input 
+                             type="file" 
+                             className="hidden" 
+                             accept="image/*"
+                             onChange={(e) => {
+                                 if (e.target.files && e.target.files.length > 0) {
+                                     setImageUploaded(true);
+                                 }
+                             }}
+                          />
                           {imageUploaded ? (
                              <>
-                                <CheckCircle2 className="w-8 h-8" />
+                                <CheckCircle2 className="w-5 h-5" />
                                 <span className="text-[10px] font-black uppercase tracking-widest">Image Uploaded Successfully</span>
                              </>
                           ) : (
                              <>
-                                <Camera className="w-8 h-8" />
+                                <Camera className="w-5 h-5" />
                                 <span className="text-[10px] font-black uppercase tracking-widest">Upload Inspection Photo</span>
                              </>
                           )}
-                       </button>
+                       </label>
                     </div>
                  </div>
 

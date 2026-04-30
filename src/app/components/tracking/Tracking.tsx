@@ -8,12 +8,12 @@ import {
 
 const activeTrips = [
   { 
-    id: 'TRP-1045', 
-    vehicle: 'TRK-445', 
-    driver: 'Robert Fox',
-    origin: 'Terminal A',
-    destination: 'ABC Depot',
-    status: 'In Transit', 
+    id: 'TRP-BE-1045', 
+    vehicle: '1-ABC-234', 
+    driver: 'Jean Dupont',
+    origin: 'Antwerp Port Terminal',
+    destination: 'ArcelorMittal Gent',
+    status: 'IN_TRANSIT', 
     eta: '14:30', 
     progress: 65,
     speed: '68 km/h',
@@ -21,12 +21,12 @@ const activeTrips = [
     fuel: '72%'
   },
   { 
-    id: 'TRP-1046', 
-    vehicle: 'TRK-332', 
-    driver: 'Jane Cooper',
-    origin: 'Terminal B',
-    destination: 'XYZ Warehouse',
-    status: 'In Transit', 
+    id: 'TRP-BE-1046', 
+    vehicle: '2-XYZ-789', 
+    driver: 'Marc De Smet',
+    origin: 'Zeebrugge Terminal',
+    destination: 'TotalEnergies Brussels',
+    status: 'IN_TRANSIT', 
     eta: '15:15', 
     progress: 45,
     speed: '54 km/h',
@@ -34,12 +34,12 @@ const activeTrips = [
     fuel: '85%'
   },
   { 
-    id: 'TRP-1047', 
-    vehicle: 'TRK-881', 
-    driver: 'Cody Fisher',
-    origin: 'Terminal A',
-    destination: 'Regional Center',
-    status: 'Delayed', 
+    id: 'TRP-BE-1047', 
+    vehicle: 'BE-TK-9087', 
+    driver: 'Thomas Vermeulen',
+    origin: 'Antwerp Port Terminal',
+    destination: 'Industrial Distribution Centers',
+    status: 'DELAYED', 
     eta: '16:00', 
     progress: 30,
     speed: '0 km/h',
@@ -98,7 +98,7 @@ export function Tracking() {
                   <div className="flex items-center justify-between mb-3">
                     <div className="text-xs font-bold text-slate-900">{trip.id}</div>
                     <div className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase ${
-                      trip.status === 'Delayed' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'
+                      trip.status === 'DELAYED' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'
                     }`}>
                       {trip.status}
                     </div>

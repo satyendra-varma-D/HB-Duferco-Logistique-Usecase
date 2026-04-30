@@ -76,8 +76,8 @@ export function LoginPage() {
       {/* Right Side: Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-20 bg-[#F9FBFC]">
         <div className="w-full max-w-xl">
-          <div className="mb-10 text-center lg:text-left">
-            <div className="flex flex-col items-center lg:items-start mb-8">
+          <div className="mb-14 text-center lg:text-left">
+            <div className="flex flex-col items-center lg:items-start mb-10">
               <div className="w-20 h-20 bg-[#0047AB] rounded-tr-[30px] rounded-bl-[30px] flex flex-col items-center justify-center mb-3 shadow-xl border border-blue-100/20">
                 <span className="text-[11px] font-black text-white tracking-tighter leading-none uppercase">DUFERCO</span>
                 <div className="h-0.5 w-1/2 bg-orange-500 my-0.5 rounded-full" />
@@ -90,33 +90,35 @@ export function LoginPage() {
           </div>
 
           {/* Role Selection */}
-          <div className="grid grid-cols-2 gap-3 mb-8">
+          <div className="grid grid-cols-2 gap-4 mb-10">
             {roles.map((r) => (
               <button
                 key={r.id}
                 type="button"
                 onClick={() => handleRoleSelect(r.id, r.email)}
-                className={`p-4 rounded-2xl border-2 transition-all duration-300 text-left group ${
+                className={`p-3 rounded-xl border-2 transition-all duration-300 text-left group flex items-center gap-3 ${
                   role === r.id 
                     ? 'border-primary bg-white shadow-xl shadow-primary/10 ring-4 ring-primary/5' 
                     : 'border-slate-100 bg-slate-50/50 hover:border-slate-200 hover:bg-white'
                 }`}
               >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-colors ${
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
                   role === r.id ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400 group-hover:text-slate-600'
                 }`}>
-                  <r.icon className="w-5 h-5" />
+                  <r.icon className="w-4 h-4" />
                 </div>
-                <div className={`text-xs font-bold uppercase tracking-wider mb-0.5 ${role === r.id ? 'text-primary' : 'text-slate-400'}`}>
-                  {r.label}
+                <div>
+                  <div className={`text-[11px] font-bold uppercase tracking-wider mb-0.5 ${role === r.id ? 'text-primary' : 'text-slate-400'}`}>
+                    {r.label}
+                  </div>
+                  <div className="text-[9px] text-slate-400 font-medium truncate">{r.desc}</div>
                 </div>
-                <div className="text-[10px] text-slate-400 font-medium truncate">{r.desc}</div>
               </button>
             ))}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-1.5">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-2">
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-1">Email Address</label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary transition-colors" />
@@ -125,17 +127,14 @@ export function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium shadow-sm"
+                  className="w-full pl-11 pr-4 py-4 bg-white border border-slate-100 rounded-2xl outline-none focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium shadow-sm"
                   required
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between px-1">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Password</label>
-                <button type="button" className="text-[11px] font-bold text-primary hover:underline">Forgot?</button>
-              </div>
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest px-1">Password</label>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-primary transition-colors" />
                 <input
@@ -143,21 +142,16 @@ export function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium shadow-sm"
+                  className="w-full pl-11 pr-4 py-4 bg-white border border-slate-100 rounded-2xl outline-none focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium shadow-sm"
                   required
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-2 px-1">
-              <input type="checkbox" id="remember" className="w-4 h-4 rounded border-slate-200 text-primary focus:ring-primary/20" />
-              <label htmlFor="remember" className="text-xs text-slate-500 font-medium">Keep me signed in for 30 days</label>
-            </div>
-
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:hover:translate-y-0 mt-4 group"
+              className="w-full py-5 bg-primary text-white rounded-2xl font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:hover:translate-y-0 mt-6 group"
             >
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -170,33 +164,6 @@ export function LoginPage() {
             </button>
           </form>
 
-          {/* Compact System Info Cards */}
-          <div className="mt-8 grid grid-cols-2 gap-4">
-             <div className="p-4 bg-white border border-slate-100 rounded-2xl flex items-center gap-3 shadow-sm hover:shadow-md transition-all group">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center">
-                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                </div>
-                <div>
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">System Status</p>
-                   <p className="text-xs font-black text-slate-900">Operational</p>
-                </div>
-             </div>
-             <div className="p-4 bg-white border border-slate-100 rounded-2xl flex items-center gap-3 shadow-sm hover:shadow-md transition-all">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center">
-                   <RotateCw className="w-4 h-4" />
-                </div>
-                <div>
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Last Sync</p>
-                   <p className="text-xs font-black text-slate-900">2m ago</p>
-                </div>
-             </div>
-          </div>
-
-          <div className="mt-12 text-center">
-            <p className="text-slate-400 text-xs font-medium">
-              Don't have an account? <button className="text-primary font-bold hover:underline">Contact Administrator</button>
-            </p>
-          </div>
         </div>
       </div>
     </div>

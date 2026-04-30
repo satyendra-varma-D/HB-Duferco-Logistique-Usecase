@@ -15,11 +15,11 @@ const reportTypes = [
 ];
 
 const mockReportData = [
-  { id: 'TRP-1045', transporter: 'Global Logistics', product: 'Diesel', quantity: '15,000 L', status: 'COMPLETED', time: '09:15 AM', variance: '0%' },
-  { id: 'TRP-1046', transporter: 'Express Freight', product: 'Petrol', quantity: '12,000 L', status: 'IN_PROGRESS', time: '10:30 AM', variance: '-0.5%' },
-  { id: 'TRP-1047', transporter: 'Swift Roadways', product: 'Diesel', quantity: '18,000 L', status: 'COMPLETED', time: '11:45 AM', variance: '+0.2%' },
-  { id: 'TRP-1048', transporter: 'Prime Carriers', product: 'Kerosene', quantity: '8,500 L', status: 'AT_GATE', time: '12:20 PM', variance: '0%' },
-  { id: 'TRP-1049', transporter: 'Global Logistics', product: 'Petrol', quantity: '22,000 L', status: 'LOADED', time: '01:10 PM', variance: '+0.1%' },
+  { id: 'TRP-1045', transporter: 'Global Logistics', product: 'Steel Coils', quantity: '25 MT', status: 'COMPLETED', time: '09:15 AM', variance: '0%' },
+  { id: 'TRP-1046', transporter: 'Express Freight', product: 'Steel Bars', quantity: '18 MT', status: 'IN_PROGRESS', time: '10:30 AM', variance: '-0.5%' },
+  { id: 'TRP-1047', transporter: 'Swift Roadways', product: 'Steel Coils', quantity: '30 MT', status: 'COMPLETED', time: '11:45 AM', variance: '+0.2%' },
+  { id: 'TRP-1048', transporter: 'Prime Carriers', product: 'Steel Plates', quantity: '40 MT', status: 'AT_GATE', time: '12:20 PM', variance: '0%' },
+  { id: 'TRP-1049', transporter: 'Global Logistics', product: 'Steel Bars', quantity: '15 MT', status: 'LOADED', time: '01:10 PM', variance: '+0.1%' },
 ];
 
 export function Reports() {

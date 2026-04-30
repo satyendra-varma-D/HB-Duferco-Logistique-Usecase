@@ -21,48 +21,59 @@ interface Transporter {
 
 const initialTransporters: Transporter[] = [
   {
-    id: 'T-101',
-    name: 'Global Logistics Solutions',
-    email: 'contact@global-logistics.com',
-    phone: '+32 2 555 0123',
-    location: 'Antwerp, Belgium',
-    fleetSize: 45,
+    id: 'T-BE-001',
+    name: 'H. Essers',
+    email: 'ops@essers.com',
+    phone: '+32 89 32 32 32',
+    location: 'Genk, Belgium',
+    fleetSize: 120,
     rating: 4.8,
     status: 'ACTIVE',
     joinedDate: '2025-01-15'
   },
   {
-    id: 'T-102',
-    name: 'Express Freight Co.',
-    email: 'ops@expressfreight.be',
-    phone: '+32 3 444 0987',
-    location: 'Ghent, Belgium',
-    fleetSize: 28,
+    id: 'T-BE-002',
+    name: 'Van Moer Logistics',
+    email: 'dispatch@vanmoer.com',
+    phone: '+32 3 253 23 23',
+    location: 'Zwijndrecht, Belgium',
+    fleetSize: 85,
     rating: 4.5,
     status: 'ACTIVE',
     joinedDate: '2025-03-10'
   },
   {
-    id: 'T-103',
-    name: 'Swift Transport NV',
-    email: 'info@swift-transport.com',
-    phone: '+32 4 333 0555',
-    location: 'Brussels, Belgium',
-    fleetSize: 62,
+    id: 'T-BE-003',
+    name: 'Katoen Natie',
+    email: 'info@katoennatie.com',
+    phone: '+32 3 221 68 11',
+    location: 'Antwerp, Belgium',
+    fleetSize: 200,
     rating: 4.9,
     status: 'ACTIVE',
     joinedDate: '2024-11-20'
   },
   {
-    id: 'T-104',
-    name: 'Euro Haulage Ltd',
-    email: 'support@eurohaulage.co.uk',
-    phone: '+44 20 7946 0123',
-    location: 'London, UK',
-    fleetSize: 15,
-    rating: 3.8,
-    status: 'INACTIVE',
+    id: 'T-BE-004',
+    name: 'Transport Gheys',
+    email: 'support@gheys.com',
+    phone: '+32 14 56 22 11',
+    location: 'Mol, Belgium',
+    fleetSize: 60,
+    rating: 4.2,
+    status: 'ACTIVE',
     joinedDate: '2025-05-02'
+  },
+  {
+    id: 'T-BE-005',
+    name: 'Sitra Group',
+    email: 'planning@sitra.com',
+    phone: '+32 57 22 99 99',
+    location: 'Ypres, Belgium',
+    fleetSize: 95,
+    rating: 4.6,
+    status: 'ACTIVE',
+    joinedDate: '2025-06-15'
   }
 ];
 
@@ -70,6 +81,19 @@ export function TransportersList() {
   const [transporters, setTransporters] = useState<Transporter[]>(initialTransporters);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedTransporter, setSelectedTransporter] = useState<Transporter | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All Status');
+
+  const filteredTransporters = transporters.filter(t => {
+    const matchesSearch = 
+      t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.location.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'All Status' || t.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   const handleAdd = () => {
     setSelectedTransporter(null);
@@ -120,21 +144,30 @@ export function TransportersList() {
       {/* Main Content */}
       <div className="bg-white border border-slate-100 rounded-[32px] overflow-hidden shadow-sm">
         {/* Table Header / Filters */}
-        <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+         <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
            <div className="relative group flex-1 max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
               <input
                 type="text"
                 placeholder="Search by name, location or ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-primary/20 transition-all text-xs font-bold"
               />
            </div>
            <div className="flex items-center gap-3">
-              <select className="px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-xs font-bold text-slate-600 appearance-none min-w-[140px]">
-                <option>All Status</option>
-                <option>Active</option>
-                <option>Inactive</option>
-              </select>
+              <div className="relative">
+                <select 
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white text-xs font-bold text-slate-600 appearance-none min-w-[140px]"
+                >
+                  <option>All Status</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
+                </select>
+                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none rotate-90" />
+              </div>
               <button className="p-3 border border-slate-100 rounded-2xl hover:bg-slate-50 text-slate-400 transition-all">
                 <Filter className="w-4 h-4" />
               </button>
@@ -154,7 +187,7 @@ export function TransportersList() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {transporters.map((transporter) => (
+              {filteredTransporters.map((transporter) => (
                 <tr key={transporter.id} className="group hover:bg-slate-50/50 transition-colors">
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-4">

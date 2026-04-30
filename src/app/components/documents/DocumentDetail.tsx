@@ -95,9 +95,9 @@ export function DocumentDetail() {
               </thead>
               <tbody>
                 <tr className="border-b border-border">
-                  <td className="py-3">Diesel</td>
-                  <td className="text-right py-3">5,000</td>
-                  <td className="text-right py-3">Liters</td>
+                  <td className="py-3">Steel Coils</td>
+                  <td className="text-right py-3">25</td>
+                  <td className="text-right py-3">MT</td>
                 </tr>
               </tbody>
             </table>
